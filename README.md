@@ -39,7 +39,9 @@ services to `127.0.0.1`, so they are reachable only from the local computer.
    ```
 
 3. Open the admin interface at http://localhost:3333. The local phishing
-   listener is available at http://localhost:8080.
+   listener is available at http://localhost:8080. Mailpit captures local
+   test emails at http://localhost:8025; use `mailpit:1025` as the SMTP host
+   in a test sending profile.
 
 Use `docker compose down` to stop the application while keeping its data.
 Do not add `-v` unless the local database should be deleted as well.

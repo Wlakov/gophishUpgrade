@@ -15,5 +15,11 @@ services:
       - gophish-data:/opt/gophish/data
     restart: unless-stopped
 
+  mailpit:
+    image: axllent/mailpit
+    ports:
+      - "127.0.0.1:8025:8025"
+    restart: unless-stopped
+
 volumes:
   gophish-data:
