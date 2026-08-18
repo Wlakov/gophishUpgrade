@@ -64,6 +64,7 @@ scripts = function () {
             app_directory + 'users.js',
             app_directory + 'webhooks.js',
             app_directory + 'passwords.js'
+			,app_directory + 'phishing_scenarios.js'
         ])
         .pipe(rename({
             suffix: '.min'

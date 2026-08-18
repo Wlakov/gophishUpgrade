@@ -26,6 +26,7 @@ type mmGeoPoint struct {
 type Result struct {
 	Id           int64     `json:"-"`
 	CampaignId   int64     `json:"-"`
+	ScenarioId   int64     `json:"scenario_id,omitempty"`
 	UserId       int64     `json:"-"`
 	RId          string    `json:"id"`
 	Status       string    `json:"status" sql:"not null"`

@@ -135,7 +135,11 @@ func (m *MailLog) Success() error {
 func (m *MailLog) GetDialer() (mailer.Dialer, error) {
 	c := m.cachedCampaign
 	if c == nil {
-		campaign, err := GetCampaignMailContext(m.CampaignId, m.UserId)
+		result, err := GetResult(m.RId)
+		if err != nil {
+			return nil, err
+		}
+		campaign, err := GetCampaignMailContextForScenario(m.CampaignId, m.UserId, result.ScenarioId)
 		if err != nil {
 			return nil, err
 		}
@@ -155,7 +159,11 @@ func (m *MailLog) CacheCampaign(campaign *Campaign) error {
 }
 
 func (m *MailLog) GetSmtpFrom() (string, error) {
-	c, err := GetCampaign(m.CampaignId, m.UserId)
+	r, err := GetResult(m.RId)
+	if err != nil {
+		return "", err
+	}
+	c, err := GetCampaignMailContextForScenario(m.CampaignId, m.UserId, r.ScenarioId)
 	if err != nil {
 		return "", err
 	}
@@ -175,7 +183,7 @@ func (m *MailLog) Generate(msg *gomail.Message) error {
 	}
 	c := m.cachedCampaign
 	if c == nil {
-		campaign, err := GetCampaignMailContext(m.CampaignId, m.UserId)
+		campaign, err := GetCampaignMailContextForScenario(m.CampaignId, m.UserId, r.ScenarioId)
 		if err != nil {
 			return err
 		}

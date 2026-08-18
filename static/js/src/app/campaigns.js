@@ -37,18 +37,19 @@ function launch() {
                 if (send_by_date != "") {
                     send_by_date = moment(send_by_date, "MMMM Do YYYY, h:mm a").utc().format()
                 }
+                var scenarios = []
+                $("#scenarios").select2("data").forEach(function (scenario) {
+                    scenarios.push({ id: parseInt(scenario.id, 10) })
+                })
+                if (scenarios.length === 0) {
+                    modalError("Select at least one phishing scenario")
+                    reject("No phishing scenarios selected")
+                    return
+                }
                 campaign = {
                     name: $("#name").val(),
-                    template: {
-                        name: $("#template").select2("data")[0].text
-                    },
                     url: $("#url").val(),
-                    page: {
-                        name: $("#page").select2("data")[0].text
-                    },
-                    smtp: {
-                        name: $("#profile").select2("data")[0].text
-                    },
+                    scenarios: scenarios,
                     launch_date: moment($("#launch_date").val(), "MMMM Do YYYY, h:mm a").utc().format(),
                     send_by_date: send_by_date || null,
                     groups: groups,
@@ -117,10 +118,8 @@ function sendTestEmail() {
 function dismiss() {
     $("#modal\\.flashes").empty();
     $("#name").val("");
-    $("#template").val("").change();
-    $("#page").val("").change();
+    $("#scenarios").val("").change();
     $("#url").val("");
-    $("#profile").val("").change();
     $("#users").val("").change();
     $("#modal").modal('hide');
 }
@@ -181,68 +180,23 @@ function setupOptions() {
                 });
             }
         });
-    api.templates.get()
-        .success(function (templates) {
-            if (templates.length == 0) {
-                modalError("No templates found!")
+    api.scenarios.get()
+        .success(function (scenarios) {
+            if (scenarios.length === 0) {
+                modalError("No phishing scenarios found. Create one first.")
                 return false
-            } else {
-                var template_s2 = $.map(templates, function (obj) {
-                    obj.text = obj.name
-                    return obj
-                });
-                var template_select = $("#template.form-control")
-                template_select.select2({
-                    placeholder: "Select a Template",
-                    data: template_s2,
-                });
-                if (templates.length === 1) {
-                    template_select.val(template_s2[0].id)
-                    template_select.trigger('change.select2')
-                }
             }
-        });
-    api.pages.get()
-        .success(function (pages) {
-            if (pages.length == 0) {
-                modalError("No pages found!")
-                return false
-            } else {
-                var page_s2 = $.map(pages, function (obj) {
-                    obj.text = obj.name
-                    return obj
-                });
-                var page_select = $("#page.form-control")
-                page_select.select2({
-                    placeholder: "Select a Landing Page",
-                    data: page_s2,
-                });
-                if (pages.length === 1) {
-                    page_select.val(page_s2[0].id)
-                    page_select.trigger('change.select2')
+            var scenarioOptions = $.map(scenarios, function (scenario) {
+                return {
+                    id: scenario.id,
+                    text: scenario.name,
+                    title: scenario.template.name + " / " + scenario.page.name + " / " + scenario.smtp.name
                 }
-            }
-        });
-    api.SMTP.get()
-        .success(function (profiles) {
-            if (profiles.length == 0) {
-                modalError("No profiles found!")
-                return false
-            } else {
-                var profile_s2 = $.map(profiles, function (obj) {
-                    obj.text = obj.name
-                    return obj
-                });
-                var profile_select = $("#profile.form-control")
-                profile_select.select2({
-                    placeholder: "Select a Sending Profile",
-                    data: profile_s2,
-                }).select2("val", profile_s2[0]);
-                if (profiles.length === 1) {
-                    profile_select.val(profile_s2[0].id)
-                    profile_select.trigger('change.select2')
-                }
-            }
+            })
+            $("#scenarios").select2({
+                placeholder: "Select one or more phishing scenarios",
+                data: scenarioOptions
+            })
         });
 }
 
@@ -256,33 +210,10 @@ function copy(idx) {
     api.campaignId.get(campaigns[idx].id)
         .success(function (campaign) {
             $("#name").val("Copy of " + campaign.name)
-            if (!campaign.template.id) {
-                $("#template").val("").change();
-                $("#template").select2({
-                    placeholder: campaign.template.name
-                });
-            } else {
-                $("#template").val(campaign.template.id.toString());
-                $("#template").trigger("change.select2")
-            }
-            if (!campaign.page.id) {
-                $("#page").val("").change();
-                $("#page").select2({
-                    placeholder: campaign.page.name
-                });
-            } else {
-                $("#page").val(campaign.page.id.toString());
-                $("#page").trigger("change.select2")
-            }
-            if (!campaign.smtp.id) {
-                $("#profile").val("").change();
-                $("#profile").select2({
-                    placeholder: campaign.smtp.name
-                });
-            } else {
-                $("#profile").val(campaign.smtp.id.toString());
-                $("#profile").trigger("change.select2")
-            }
+            var scenarioIds = $.map(campaign.scenarios || [], function (scenario) {
+                return scenario.id.toString()
+            })
+            $("#scenarios").val(scenarioIds).trigger("change")
             $("#url").val(campaign.url)
         })
         .error(function (data) {
