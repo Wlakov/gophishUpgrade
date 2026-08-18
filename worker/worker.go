@@ -2,6 +2,7 @@ package worker
 
 import (
 	"context"
+	"fmt"
 	"time"
 
 	log "github.com/gophish/gophish/logger"
@@ -58,31 +59,36 @@ func (w *DefaultWorker) processCampaigns(t time.Time) error {
 	if err != nil {
 		return err
 	}
-	campaignCache := make(map[int64]models.Campaign)
+	campaignCache := make(map[string]models.Campaign)
 	// We'll group the maillogs by campaign ID to (roughly) group
 	// them by sending profile. This lets the mailer re-use the Sender
 	// instead of having to re-connect to the SMTP server for every
 	// email.
-	msg := make(map[int64][]mailer.Mail)
+	msg := make(map[string][]mailer.Mail)
 	for _, m := range ms {
+		result, err := models.GetResult(m.RId)
+		if err != nil {
+			return err
+		}
+		cacheKey := fmt.Sprintf("%d:%d", m.CampaignId, result.ScenarioId)
 		// We cache the campaign here to greatly reduce the time it takes to
-		// generate the message (ref #1726)
-		c, ok := campaignCache[m.CampaignId]
+		// generate the message. Scenario ID is included because each scenario
+		// can use a different sending profile and email template.
+		c, ok := campaignCache[cacheKey]
 		if !ok {
-			c, err = models.GetCampaignMailContext(m.CampaignId, m.UserId)
+			c, err = models.GetCampaignMailContextForScenario(m.CampaignId, m.UserId, result.ScenarioId)
 			if err != nil {
 				return err
 			}
-			campaignCache[c.Id] = c
+			campaignCache[cacheKey] = c
 		}
 		m.CacheCampaign(&c)
-		msg[m.CampaignId] = append(msg[m.CampaignId], m)
+		msg[cacheKey] = append(msg[cacheKey], m)
 	}
 
 	// Next, we process each group of maillogs in parallel
-	for cid, msc := range msg {
-		go func(cid int64, msc []mailer.Mail) {
-			c := campaignCache[cid]
+	for cacheKey, msc := range msg {
+		go func(c models.Campaign, msc []mailer.Mail) {
 			if c.Status == models.CampaignQueued {
 				err := c.UpdateStatus(models.CampaignInProgress)
 				if err != nil {
@@ -94,7 +100,7 @@ func (w *DefaultWorker) processCampaigns(t time.Time) error {
 				"num_emails": len(msc),
 			}).Info("Sending emails to mailer for processing")
 			w.mailer.Queue(msc)
-		}(cid, msc)
+		}(campaignCache[cacheKey], msc)
 	}
 	return nil
 }
@@ -125,17 +131,28 @@ func (w *DefaultWorker) LaunchCampaign(c models.Campaign) {
 	// that implements an interface as a slice of that interface.
 	mailEntries := []mailer.Mail{}
 	currentTime := time.Now().UTC()
-	campaignMailCtx, err := models.GetCampaignMailContext(c.Id, c.UserId)
-	if err != nil {
-		log.Error(err)
-		return
-	}
+	campaignCache := make(map[string]models.Campaign)
 	for _, m := range ms {
 		// Only send the emails scheduled to be sent for the past minute to
 		// respect the campaign scheduling options
 		if m.SendDate.After(currentTime) {
 			m.Unlock()
 			continue
+		}
+		result, err := models.GetResult(m.RId)
+		if err != nil {
+			log.Error(err)
+			return
+		}
+		cacheKey := fmt.Sprintf("%d:%d", m.CampaignId, result.ScenarioId)
+		campaignMailCtx, ok := campaignCache[cacheKey]
+		if !ok {
+			campaignMailCtx, err = models.GetCampaignMailContextForScenario(m.CampaignId, m.UserId, result.ScenarioId)
+			if err != nil {
+				log.Error(err)
+				return
+			}
+			campaignCache[cacheKey] = campaignMailCtx
 		}
 		err = m.CacheCampaign(&campaignMailCtx)
 		if err != nil {
