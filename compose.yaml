@@ -1,0 +1,19 @@
+services:
+  gophish:
+    build:
+      context: .
+    image: ${GOPHISH_IMAGE:-gophish-scenarios:dev}
+    ports:
+      - "127.0.0.1:${GOPHISH_ADMIN_PORT:-3333}:3333"
+      - "127.0.0.1:${GOPHISH_PHISH_PORT:-8080}:80"
+    environment:
+      ADMIN_LISTEN_URL: "0.0.0.0:3333"
+      ADMIN_USE_TLS: "false"
+      PHISH_LISTEN_URL: "0.0.0.0:80"
+      DB_FILE_PATH: "/opt/gophish/data/gophish.db"
+    volumes:
+      - gophish-data:/opt/gophish/data
+    restart: unless-stopped
+
+volumes:
+  gophish-data:

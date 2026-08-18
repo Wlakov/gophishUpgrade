@@ -36,6 +36,13 @@ RUN chown app. config.json
 
 RUN setcap 'cap_net_bind_service=+ep' /opt/gophish/gophish
 
+# Git on Windows can check this shell script out with CRLF line endings.
+# Normalize it in the Linux image so its /bin/bash shebang remains executable.
+RUN sed -i 's/\r$//' docker/run.sh && \
+	chmod 755 docker/run.sh && \
+	mkdir -p data && \
+	chown -R app:app data
+
 USER app
 RUN sed -i 's/127.0.0.1/0.0.0.0/g' config.json
 RUN touch config.json.tmp
