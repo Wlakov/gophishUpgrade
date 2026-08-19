@@ -279,6 +279,11 @@ var api = {
             return query("/departments/" + id, "GET", {}, true)
         }
     },
+    userCampaigns: {
+        get: function () {
+            return query("/user_campaigns/", "GET", {}, true)
+        }
+    },
     webhooks: {
         get: function() {
             return query("/webhooks/", "GET", {}, false)

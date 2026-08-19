@@ -36,6 +36,13 @@ type Campaign struct {
 	URL           string             `json:"url"`
 }
 
+// CampaignGroup preserves the groups selected when a campaign is created so
+// system administrators can later review the campaign configuration.
+type CampaignGroup struct {
+	CampaignId int64 `json:"campaign_id"`
+	GroupId    int64 `json:"group_id"`
+}
+
 // CampaignResults is a struct representing the results from a campaign
 type CampaignResults struct {
 	Id            int64           `json:"id"`
@@ -235,6 +242,23 @@ func (c *Campaign) getDetails() error {
 	if err != nil && err != gorm.ErrRecordNotFound {
 		log.Warn(err)
 		return err
+	}
+	links := []CampaignGroup{}
+	if err = db.Where("campaign_id=?", c.Id).Find(&links).Error; err != nil {
+		return err
+	}
+	c.Groups = make([]Group, 0, len(links))
+	for _, link := range links {
+		group, groupErr := GetGroup(link.GroupId, c.UserId)
+		if groupErr != nil {
+			if groupErr == gorm.ErrRecordNotFound {
+				continue
+			}
+			return groupErr
+		}
+		if group.Id != 0 {
+			c.Groups = append(c.Groups, group)
+		}
 	}
 	c.Scenarios, err = GetCampaignScenarios(c.Id, c.UserId)
 	if err != nil {
@@ -601,6 +625,12 @@ func PostCampaign(c *Campaign, uid int64) error {
 			return err
 		}
 	}
+	for _, group := range c.Groups {
+		link := &CampaignGroup{CampaignId: c.Id, GroupId: group.Id}
+		if err := db.Save(link).Error; err != nil {
+			return err
+		}
+	}
 	err = AddEvent(&Event{Message: "Campaign Created"}, c.Id)
 	if err != nil {
 		log.Error(err)
@@ -691,6 +721,10 @@ func DeleteCampaign(id int64) error {
 		"campaign_id": id,
 	}).Info("Deleting campaign")
 	err := db.Where("campaign_id=?", id).Delete(&CampaignScenario{}).Error
+	if err != nil {
+		return err
+	}
+	err = db.Where("campaign_id=?", id).Delete(&CampaignGroup{}).Error
 	if err != nil {
 		return err
 	}

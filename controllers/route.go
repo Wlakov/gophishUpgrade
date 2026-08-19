@@ -136,6 +136,7 @@ func (as *AdminServer) registerRoutes() {
 	router.HandleFunc("/phishing_scenarios", mid.Use(as.PhishingScenarios, mid.RequireLogin))
 	router.HandleFunc("/settings", mid.Use(as.Settings, mid.RequireLogin))
 	router.HandleFunc("/users", mid.Use(as.UserManagement, mid.RequirePermission(models.PermissionModifySystem), mid.RequireLogin))
+	router.HandleFunc("/user_campaigns", mid.Use(as.UserCampaigns, mid.RequirePermission(models.PermissionModifySystem), mid.RequireLogin))
 	router.HandleFunc("/departments/{id:[0-9]+}", mid.Use(as.DepartmentWorkspace, mid.RequirePermission(models.PermissionModifySystem), mid.RequireLogin))
 	router.HandleFunc("/webhooks", mid.Use(as.Webhooks, mid.RequirePermission(models.PermissionModifySystem), mid.RequireLogin))
 	router.HandleFunc("/impersonate", mid.Use(as.Impersonate, mid.RequirePermission(models.PermissionModifySystem), mid.RequireLogin))
@@ -307,6 +308,14 @@ func (as *AdminServer) UserManagement(w http.ResponseWriter, r *http.Request) {
 	params := newTemplateParams(r)
 	params.Title = "User Management"
 	getTemplate(w, "users").ExecuteTemplate(w, "base", params)
+}
+
+// UserCampaigns renders the system administrator's read-only view of every
+// user's campaigns and the materials used in those campaigns.
+func (as *AdminServer) UserCampaigns(w http.ResponseWriter, r *http.Request) {
+	params := newTemplateParams(r)
+	params.Title = "Users Campaigns"
+	getTemplate(w, "user_campaigns").ExecuteTemplate(w, "base", params)
 }
 
 // DepartmentWorkspace renders the system administrator's read-only view of a

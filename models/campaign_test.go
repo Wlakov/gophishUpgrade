@@ -62,6 +62,16 @@ func (s *ModelsSuite) TestGenerateSendDate(c *check.C) {
 	}
 }
 
+func (s *ModelsSuite) TestCampaignStoresSelectedGroups(c *check.C) {
+	campaign := s.createCampaignDependencies(c)
+	c.Assert(PostCampaign(&campaign, campaign.UserId), check.Equals, nil)
+
+	stored, err := GetCampaign(campaign.Id, campaign.UserId)
+	c.Assert(err, check.Equals, nil)
+	c.Assert(len(stored.Groups), check.Equals, 1)
+	c.Assert(stored.Groups[0].Name, check.Equals, campaign.Groups[0].Name)
+}
+
 func (s *ModelsSuite) TestCampaignDateValidation(c *check.C) {
 	campaign := s.createCampaignDependencies(c)
 	// If both are zero, then the campaign should start immediately with no

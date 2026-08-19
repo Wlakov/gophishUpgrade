@@ -1,0 +1,14 @@
+{{define "body"}}
+<div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
+    <div class="row">
+        <h1 class="page-header">Users Campaigns</h1>
+    </div>
+    <div id="flashes" class="row"></div>
+    <p class="text-muted">Read-only view of campaigns created by all users and the materials used in each campaign.</p>
+    <div id="loading"><i class="fa fa-spinner fa-spin fa-4x"></i></div>
+    <div id="userCampaignWorkspaces" style="display:none;"></div>
+</div>
+{{end}}
+{{define "scripts"}}
+<script src="/js/dist/app/user_campaigns.min.js"></script>
+{{end}}
