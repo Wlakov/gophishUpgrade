@@ -6,10 +6,12 @@
         </h1>
     </div>
     <div id="flashes" class="row"></div>
+    {{if .ModifyObjects}}
     <div class="row">
         <button type="button" class="btn btn-primary" onclick="edit(-1)" data-toggle="modal" data-backdrop="static"
             data-target="#modal"><i class="fa fa-plus"></i> New Template</button>
     </div>
+    {{end}}
     &nbsp;
     <div id="loading">
         <i class="fa fa-spinner fa-spin fa-4x"></i>

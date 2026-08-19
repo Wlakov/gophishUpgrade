@@ -12,6 +12,13 @@ import (
 // accounts left in Gophish with that role.
 var ErrModifyingOnlyAdmin = errors.New("Cannot remove the only administrator")
 
+var (
+	ErrManagerRequired       = errors.New("A campaign manager must be selected for an editor or viewer")
+	ErrInvalidManager        = errors.New("The selected user is not a campaign manager")
+	ErrManagerHasMembers     = errors.New("Cannot delete a campaign manager while users are assigned to them")
+	ErrManagerCannotHaveLead = errors.New("A system administrator or campaign manager cannot be assigned to a department")
+)
+
 // User represents the user model for gophish.
 type User struct {
 	Id                     int64     `json:"id"`
@@ -20,6 +27,7 @@ type User struct {
 	ApiKey                 string    `json:"api_key" sql:"not null;unique"`
 	Role                   Role      `json:"role" gorm:"association_autoupdate:false;association_autocreate:false"`
 	RoleID                 int64     `json:"-"`
+	ManagerID              *int64    `json:"manager_id,omitempty"`
 	PasswordChangeRequired bool      `json:"password_change_required"`
 	AccountLocked          bool      `json:"account_locked"`
 	LastLogin              time.Time `json:"last_login"`
@@ -38,6 +46,44 @@ func GetUsers() ([]User, error) {
 	us := []User{}
 	err := db.Preload("Role").Find(&us).Error
 	return us, err
+}
+
+// GetDepartmentMembers returns the editors and viewers assigned to a campaign
+// manager. Managers remain the owners of their own data; this relationship is
+// used for organisation and administrator reporting.
+func GetDepartmentMembers(managerID int64) ([]User, error) {
+	users := []User{}
+	err := db.Preload("Role").Where("manager_id=?", managerID).Find(&users).Error
+	return users, err
+}
+
+// ValidateManagerAssignment verifies the department relationship required by
+// the selected role.
+func ValidateManagerAssignment(roleSlug string, managerID *int64, userID int64) error {
+	switch roleSlug {
+	case RoleAdmin, RoleCampaignManager:
+		if managerID != nil {
+			return ErrManagerCannotHaveLead
+		}
+		return nil
+	case RoleEditor, RoleViewer:
+		if managerID == nil {
+			return ErrManagerRequired
+		}
+		if *managerID == userID && userID != 0 {
+			return ErrInvalidManager
+		}
+		manager, err := GetUser(*managerID)
+		if err != nil {
+			return ErrInvalidManager
+		}
+		if manager.Role.Slug != RoleCampaignManager {
+			return ErrInvalidManager
+		}
+		return nil
+	default:
+		return ErrInvalidManager
+	}
 }
 
 // GetUserByAPIKey returns the user that the given API Key corresponds to. If no user is found, an
@@ -94,6 +140,15 @@ func DeleteUser(id int64) error {
 		err = EnsureEnoughAdmins()
 		if err != nil {
 			return err
+		}
+	}
+	if existing.Role.Slug == RoleCampaignManager {
+		members, err := GetDepartmentMembers(id)
+		if err != nil {
+			return err
+		}
+		if len(members) > 0 {
+			return ErrManagerHasMembers
 		}
 	}
 	campaigns, err := GetCampaigns(id)

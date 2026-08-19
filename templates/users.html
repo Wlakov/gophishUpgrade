@@ -23,6 +23,7 @@
                 <tr>
                     <th>Username</th>
                     <th>Role</th>
+                    <th>Department</th>
                     <th>Last Login</th>
                     <th class="col-md-2 no-sort"></th>
                 </tr>
@@ -74,9 +75,17 @@
                 <label class="control-label" for="role">Role:</label>
                 <div class="form-group" id="role-select">
                     <select class="form-control" placeholder="" id="role" />
-                    <option value="admin">Admin</option>
-                    <option value="user">User</option>
+                    <option value="admin">System Administrator</option>
+                    <option value="campaign_manager">Campaign Manager</option>
+                    <option value="editor">Editor</option>
+                    <option value="viewer">Viewer</option>
                     </select>
+                </div>
+                <div id="manager-group" style="display:none;">
+                    <label class="control-label" for="manager_id">Campaign Manager:</label>
+                    <div class="form-group" id="manager-select">
+                        <select class="form-control" id="manager_id"></select>
+                    </div>
                 </div>
             </div>
             <div class="modal-footer">

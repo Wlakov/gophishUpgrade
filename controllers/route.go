@@ -136,6 +136,7 @@ func (as *AdminServer) registerRoutes() {
 	router.HandleFunc("/phishing_scenarios", mid.Use(as.PhishingScenarios, mid.RequireLogin))
 	router.HandleFunc("/settings", mid.Use(as.Settings, mid.RequireLogin))
 	router.HandleFunc("/users", mid.Use(as.UserManagement, mid.RequirePermission(models.PermissionModifySystem), mid.RequireLogin))
+	router.HandleFunc("/departments/{id:[0-9]+}", mid.Use(as.DepartmentWorkspace, mid.RequirePermission(models.PermissionModifySystem), mid.RequireLogin))
 	router.HandleFunc("/webhooks", mid.Use(as.Webhooks, mid.RequirePermission(models.PermissionModifySystem), mid.RequireLogin))
 	router.HandleFunc("/impersonate", mid.Use(as.Impersonate, mid.RequirePermission(models.PermissionModifySystem), mid.RequireLogin))
 	// Create the API routes
@@ -174,12 +175,14 @@ func (as *AdminServer) registerRoutes() {
 }
 
 type templateParams struct {
-	Title        string
-	Flashes      []interface{}
-	User         models.User
-	Token        string
-	Version      string
-	ModifySystem bool
+	Title           string
+	Flashes         []interface{}
+	User            models.User
+	Token           string
+	Version         string
+	ModifySystem    bool
+	ModifyObjects   bool
+	ManageCampaigns bool
 }
 
 // newTemplateParams returns the default template parameters for a user and
@@ -188,12 +191,16 @@ func newTemplateParams(r *http.Request) templateParams {
 	user := ctx.Get(r, "user").(models.User)
 	session := ctx.Get(r, "session").(*sessions.Session)
 	modifySystem, _ := user.HasPermission(models.PermissionModifySystem)
+	modifyObjects, _ := user.HasPermission(models.PermissionModifyObjects)
+	manageCampaigns, _ := user.HasPermission(models.PermissionLaunchCampaigns)
 	return templateParams{
-		Token:        csrf.Token(r),
-		User:         user,
-		ModifySystem: modifySystem,
-		Version:      config.Version,
-		Flashes:      session.Flashes(),
+		Token:           csrf.Token(r),
+		User:            user,
+		ModifySystem:    modifySystem,
+		ModifyObjects:   modifyObjects,
+		ManageCampaigns: manageCampaigns,
+		Version:         config.Version,
+		Flashes:         session.Flashes(),
 	}
 }
 
@@ -300,6 +307,14 @@ func (as *AdminServer) UserManagement(w http.ResponseWriter, r *http.Request) {
 	params := newTemplateParams(r)
 	params.Title = "User Management"
 	getTemplate(w, "users").ExecuteTemplate(w, "base", params)
+}
+
+// DepartmentWorkspace renders the system administrator's read-only view of a
+// campaign manager's department and the members' owned resources.
+func (as *AdminServer) DepartmentWorkspace(w http.ResponseWriter, r *http.Request) {
+	params := newTemplateParams(r)
+	params.Title = "Department Workspace"
+	getTemplate(w, "department").ExecuteTemplate(w, "base", params)
 }
 
 func (as *AdminServer) nextOrIndex(w http.ResponseWriter, r *http.Request) {

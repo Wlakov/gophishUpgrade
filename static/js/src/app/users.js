@@ -1,5 +1,35 @@
 let users = []
 
+const requiresManager = (role) => role === "editor" || role === "viewer"
+
+const populateManagers = (selectedManagerId) => {
+    const selected = selectedManagerId ? String(selectedManagerId) : ""
+    const managerSelect = $("#manager_id")
+    managerSelect.empty()
+    managerSelect.append("<option value=''>Select a campaign manager</option>")
+    $.each(users, (i, candidate) => {
+        if (candidate.role.slug === "campaign_manager") {
+            const option = $("<option></option>")
+                .val(candidate.id)
+                .text(candidate.username)
+            if (String(candidate.id) === selected) {
+                option.prop("selected", true)
+            }
+            managerSelect.append(option)
+        }
+    })
+}
+
+const updateManagerVisibility = (selectedManagerId) => {
+    const role = $("#role").val()
+    $("#manager-group").toggle(requiresManager(role))
+    if (requiresManager(role)) {
+        populateManagers(selectedManagerId)
+    } else {
+        $("#manager_id").val("").trigger("change")
+    }
+}
+
 // Save attempts to POST or PUT to /users/
 const save = (id) => {
     // Validate that the passwords match
@@ -14,6 +44,8 @@ const save = (id) => {
         password_change_required: $("#force_password_change_checkbox").prop('checked'),
         account_locked: $("#account_locked_checkbox").prop('checked')
     }
+    const managerID = $("#manager_id").val()
+    user.manager_id = managerID ? parseInt(managerID, 10) : null
     // Submit the user
     if (id != -1) {
         // If we're just editing an existing user,
@@ -50,6 +82,8 @@ const dismiss = () => {
     $("#password").val("")
     $("#confirm_password").val("")
     $("#role").val("")
+    $("#manager_id").empty()
+    $("#manager-group").hide()
     $("#force_password_change_checkbox").prop('checked', true)
     $("#account_locked_checkbox").prop('checked', false)
     $("#modal\\.flashes").empty()
@@ -61,9 +95,11 @@ const edit = (id) => {
         save(id)
     })
     $("#role").select2()
+    $("#manager_id").select2()
+    $("#role").off("change.manager").on("change.manager", () => updateManagerVisibility(null))
     if (id == -1) {
         $("#userModalLabel").text("New User")
-        $("#role").val("user")
+        $("#role").val("campaign_manager")
         $("#role").trigger("change")
     } else {
         $("#userModalLabel").text("Edit User")
@@ -72,6 +108,7 @@ const edit = (id) => {
                 $("#username").val(user.username)
                 $("#role").val(user.role.slug)
                 $("#role").trigger("change")
+                updateManagerVisibility(user.manager_id)
                 $("#force_password_change_checkbox").prop('checked', user.password_change_required)
                 $("#account_locked_checkbox").prop('checked', user.account_locked)
                 if (user.username == "admin") {
@@ -207,12 +244,16 @@ const load = () => {
                 if (user.last_login != "0001-01-01T00:00:00Z") {
                     lastlogin = moment(user.last_login).format('MMMM Do YYYY, h:mm:ss a')
                 }
-                userRows.push([
-                    escapeHtml(user.username),
-                    escapeHtml(user.role.name),
-                    lastlogin,
-                    "<div class='pull-right'>\
-                    <button class='btn btn-warning impersonate_button' data-user-id='" + user.id + "'>\
+                let managerName = "—"
+                if (user.manager_id) {
+                    const manager = users.find(candidate => candidate.id === user.manager_id)
+                    managerName = manager ? manager.username : "Unassigned manager"
+                }
+                let actions = "<div class='pull-right'>"
+                if (user.role.slug === "campaign_manager") {
+                    actions += "<a class='btn btn-info' title='View Department' href='/departments/" + user.id + "'><i class='fa fa-sitemap'></i></a> "
+                }
+                actions += "<button class='btn btn-warning impersonate_button' data-user-id='" + user.id + "'>\
                     <i class='fa fa-retweet'></i>\
                     </button>\
                     <button class='btn btn-primary edit_button' data-toggle='modal' data-backdrop='static' data-target='#modal' data-user-id='" + user.id + "'>\
@@ -221,6 +262,12 @@ const load = () => {
                     <button class='btn btn-danger delete_button' data-user-id='" + user.id + "'>\
                     <i class='fa fa-trash-o'></i>\
                     </button></div>"
+                userRows.push([
+                    escapeHtml(user.username),
+                    escapeHtml(user.role.name),
+                    escapeHtml(managerName),
+                    lastlogin,
+                    actions
                 ])
             })
             userTable.rows.add(userRows).draw();

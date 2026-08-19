@@ -67,7 +67,7 @@ func TestCreateUser(t *testing.T) {
 	payload := &userRequest{
 		Username: "foo",
 		Password: "validpassword",
-		Role:     models.RoleUser,
+		Role:     models.RoleCampaignManager,
 	}
 	body, err := json.Marshal(payload)
 	if err != nil {
@@ -98,11 +98,62 @@ func TestCreateUser(t *testing.T) {
 	}
 }
 
+func TestCreateEditorWithCampaignManager(t *testing.T) {
+	testCtx := setupTest(t)
+	manager := createUnpriviledgedUser(t, models.RoleCampaignManager)
+	payload := &userRequest{
+		Username:  "editor",
+		Password:  "validpassword",
+		Role:      models.RoleEditor,
+		ManagerID: &manager.Id,
+	}
+	body, err := json.Marshal(payload)
+	if err != nil {
+		t.Fatalf("error marshaling userRequest payload: %v", err)
+	}
+	r := httptest.NewRequest(http.MethodPost, "/api/users", bytes.NewBuffer(body))
+	r = ctx.Set(r, "user", testCtx.admin)
+	w := httptest.NewRecorder()
+
+	testCtx.apiServer.Users(w, r)
+	if w.Code != http.StatusOK {
+		t.Fatalf("unexpected error code received. expected %d got %d", http.StatusOK, w.Code)
+	}
+	created := &models.User{}
+	if err := json.NewDecoder(w.Body).Decode(created); err != nil {
+		t.Fatalf("error decoding user payload: %v", err)
+	}
+	if created.ManagerID == nil || *created.ManagerID != manager.Id {
+		t.Fatalf("editor was not assigned to campaign manager %d", manager.Id)
+	}
+}
+
+func TestCreateUserWithRetiredRole(t *testing.T) {
+	testCtx := setupTest(t)
+	payload := &userRequest{
+		Username: "foo",
+		Password: "validpassword",
+		Role:     "user",
+	}
+	body, err := json.Marshal(payload)
+	if err != nil {
+		t.Fatalf("error marshaling userRequest payload: %v", err)
+	}
+	r := httptest.NewRequest(http.MethodPost, "/api/users", bytes.NewBuffer(body))
+	r = ctx.Set(r, "user", testCtx.admin)
+	w := httptest.NewRecorder()
+
+	testCtx.apiServer.Users(w, r)
+	if w.Code != http.StatusBadRequest {
+		t.Fatalf("unexpected error code received. expected %d got %d", http.StatusBadRequest, w.Code)
+	}
+}
+
 // TestModifyUser tests that a user with the appropriate access is able to
 // modify their username and password.
 func TestModifyUser(t *testing.T) {
 	testCtx := setupTest(t)
-	unpriviledgedUser := createUnpriviledgedUser(t, models.RoleUser)
+	unpriviledgedUser := createUnpriviledgedUser(t, models.RoleEditor)
 	newPassword := "new-password"
 	newUsername := "new-username"
 	payload := userRequest{
@@ -152,7 +203,7 @@ func TestUnauthorizedListUsers(t *testing.T) {
 	testCtx := setupTest(t)
 	// First, let's create a standard user which doesn't
 	// have ModifySystem permissions.
-	unauthorizedUser := createUnpriviledgedUser(t, models.RoleUser)
+	unauthorizedUser := createUnpriviledgedUser(t, models.RoleEditor)
 	// We'll try to make a request to the various users API endpoints to
 	// ensure that they fail. Previously, we could hit the handlers directly
 	// but we need to go through the router for this test to ensure the
@@ -174,7 +225,7 @@ func TestUnauthorizedGetUser(t *testing.T) {
 	testCtx := setupTest(t)
 	// First, we'll make sure that a user with the "user" role is unable to
 	// get the information of another user (in this case, the main admin).
-	unauthorizedUser := createUnpriviledgedUser(t, models.RoleUser)
+	unauthorizedUser := createUnpriviledgedUser(t, models.RoleEditor)
 	url := fmt.Sprintf("/api/users/%d", testCtx.admin.Id)
 	r := httptest.NewRequest(http.MethodGet, url, nil)
 	r.Header.Set("Authorization", fmt.Sprintf("Bearer %s", unauthorizedUser.ApiKey))
@@ -192,7 +243,7 @@ func TestUnauthorizedGetUser(t *testing.T) {
 // privilege escalation issue.
 func TestUnauthorizedSetRole(t *testing.T) {
 	testCtx := setupTest(t)
-	unauthorizedUser := createUnpriviledgedUser(t, models.RoleUser)
+	unauthorizedUser := createUnpriviledgedUser(t, models.RoleEditor)
 	url := fmt.Sprintf("/api/users/%d", unauthorizedUser.Id)
 	payload := &userRequest{
 		Username: unauthorizedUser.Username,
@@ -225,7 +276,7 @@ func TestUnauthorizedSetRole(t *testing.T) {
 // an user's username to one which already exists.
 func TestModifyWithExistingUsername(t *testing.T) {
 	testCtx := setupTest(t)
-	unauthorizedUser := createUnpriviledgedUser(t, models.RoleUser)
+	unauthorizedUser := createUnpriviledgedUser(t, models.RoleEditor)
 	payload := &userRequest{
 		Username: testCtx.admin.Username,
 		Role:     unauthorizedUser.Role.Slug,

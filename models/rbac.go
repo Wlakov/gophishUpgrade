@@ -6,11 +6,13 @@ Design:
 Gophish implements simple Role-Based-Access-Control (RBAC) to control access to
 certain resources.
 
-By default, Gophish has two separate roles, with each user being assigned to
+By default, Gophish has four separate roles, with each user being assigned to
 a single role:
 
-* Admin  - Can modify all objects as well as system-level configuration
-* User   - Can modify all objects
+* Admin            - Manages users and system-level configuration
+* Campaign Manager - Manages and launches their own campaigns
+* Editor           - Manages their own campaign materials, but cannot launch campaigns
+* Viewer           - Can only view their own campaign materials and results
 
 It's important to note that these are global roles. In the future, we'll likely
 add the concept of teams, which will include their own roles and permission
@@ -30,9 +32,14 @@ const (
 	// role have the ability to manage all objects within Gophish, as well as
 	// system-level configuration, such as users and URLs.
 	RoleAdmin = "admin"
-	// RoleUser is used for standard Gophish users. Users with this role can
-	// create, manage, and view Gophish objects and campaigns.
-	RoleUser = "user"
+	// RoleCampaignManager is used for users who can launch and manage their
+	// own campaigns.
+	RoleCampaignManager = "campaign_manager"
+	// RoleEditor is used for users who can manage their own campaign materials
+	// but cannot launch or complete campaigns.
+	RoleEditor = "editor"
+	// RoleViewer is used for users who can only view their own objects.
+	RoleViewer = "viewer"
 
 	// PermissionViewObjects determines if a role can view standard Gophish
 	// objects such as campaigns, groups, landing pages, etc.
@@ -43,6 +50,9 @@ const (
 	// PermissionModifySystem determines if a role can manage system-level
 	// configuration.
 	PermissionModifySystem = "modify_system"
+	// PermissionLaunchCampaigns determines if a role can launch, complete, or
+	// delete campaigns owned by the current user.
+	PermissionLaunchCampaigns = "launch_campaigns"
 )
 
 // Role represents a user role within Gophish. Each user has a single role
@@ -62,6 +72,18 @@ type Permission struct {
 	Slug        string `json:"slug"`
 	Name        string `json:"name"`
 	Description string `json:"description"`
+}
+
+// IsAssignableRole reports whether a role can be assigned through the user
+// management interface. Keeping this list explicit prevents API clients from
+// assigning retired or unsupported roles.
+func IsAssignableRole(slug string) bool {
+	switch slug {
+	case RoleAdmin, RoleCampaignManager, RoleEditor, RoleViewer:
+		return true
+	default:
+		return false
+	}
 }
 
 // GetRoleBySlug returns a role that can be assigned to a user.

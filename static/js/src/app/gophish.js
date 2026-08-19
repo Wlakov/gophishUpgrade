@@ -274,6 +274,11 @@ var api = {
             return query("/users/" + id, "DELETE", {}, true)
         }
     },
+    departments: {
+        get: function (id) {
+            return query("/departments/" + id, "GET", {}, true)
+        }
+    },
     webhooks: {
         get: function() {
             return query("/webhooks/", "GET", {}, false)

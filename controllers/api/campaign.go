@@ -12,6 +12,23 @@ import (
 	"github.com/jinzhu/gorm"
 )
 
+// requireCampaignManagement ensures that only users with the campaign launch
+// permission can start, complete, or delete campaigns. Editors can still
+// manage their own reusable materials, while viewers remain read-only.
+func requireCampaignManagement(w http.ResponseWriter, r *http.Request) bool {
+	user := ctx.Get(r, "user").(models.User)
+	allowed, err := user.HasPermission(models.PermissionLaunchCampaigns)
+	if err != nil {
+		JSONResponse(w, models.Response{Success: false, Message: err.Error()}, http.StatusInternalServerError)
+		return false
+	}
+	if !allowed {
+		JSONResponse(w, models.Response{Success: false, Message: http.StatusText(http.StatusForbidden)}, http.StatusForbidden)
+		return false
+	}
+	return true
+}
+
 // Campaigns returns a list of campaigns if requested via GET.
 // If requested via POST, APICampaigns creates a new campaign and returns a reference to it.
 func (as *Server) Campaigns(w http.ResponseWriter, r *http.Request) {
@@ -24,6 +41,9 @@ func (as *Server) Campaigns(w http.ResponseWriter, r *http.Request) {
 		JSONResponse(w, cs, http.StatusOK)
 	//POST: Create a new campaign and return it as JSON
 	case r.Method == "POST":
+		if !requireCampaignManagement(w, r) {
+			return
+		}
 		c := models.Campaign{}
 		// Put the request into a campaign
 		err := json.NewDecoder(r.Body).Decode(&c)
@@ -74,6 +94,9 @@ func (as *Server) Campaign(w http.ResponseWriter, r *http.Request) {
 	case r.Method == "GET":
 		JSONResponse(w, c, http.StatusOK)
 	case r.Method == "DELETE":
+		if !requireCampaignManagement(w, r) {
+			return
+		}
 		err = models.DeleteCampaign(id)
 		if err != nil {
 			JSONResponse(w, models.Response{Success: false, Message: "Error deleting campaign"}, http.StatusInternalServerError)
@@ -127,6 +150,9 @@ func (as *Server) CampaignComplete(w http.ResponseWriter, r *http.Request) {
 	id, _ := strconv.ParseInt(vars["id"], 0, 64)
 	switch {
 	case r.Method == "GET":
+		if !requireCampaignManagement(w, r) {
+			return
+		}
 		err := models.CompleteCampaign(id, ctx.Get(r, "user_id").(int64))
 		if err != nil {
 			JSONResponse(w, models.Response{Success: false, Message: "Error completing campaign"}, http.StatusInternalServerError)

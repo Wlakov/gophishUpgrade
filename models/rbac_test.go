@@ -12,14 +12,28 @@ func (s *ModelsSuite) TestHasPermission(c *check.C) {
 
 	permissionTests := map[string]PermissionCheck{
 		RoleAdmin: PermissionCheck{
-			PermissionModifySystem:  true,
-			PermissionModifyObjects: true,
-			PermissionViewObjects:   true,
+			PermissionModifySystem:    true,
+			PermissionModifyObjects:   true,
+			PermissionViewObjects:     true,
+			PermissionLaunchCampaigns: true,
 		},
-		RoleUser: PermissionCheck{
-			PermissionModifySystem:  false,
-			PermissionModifyObjects: true,
-			PermissionViewObjects:   true,
+		RoleCampaignManager: PermissionCheck{
+			PermissionModifySystem:    false,
+			PermissionModifyObjects:   true,
+			PermissionViewObjects:     true,
+			PermissionLaunchCampaigns: true,
+		},
+		RoleEditor: PermissionCheck{
+			PermissionModifySystem:    false,
+			PermissionModifyObjects:   true,
+			PermissionViewObjects:     true,
+			PermissionLaunchCampaigns: false,
+		},
+		RoleViewer: PermissionCheck{
+			PermissionModifySystem:    false,
+			PermissionModifyObjects:   false,
+			PermissionViewObjects:     true,
+			PermissionLaunchCampaigns: false,
 		},
 	}
 
@@ -46,7 +60,7 @@ func (s *ModelsSuite) TestHasPermission(c *check.C) {
 }
 
 func (s *ModelsSuite) TestGetRoleBySlug(c *check.C) {
-	roles := []string{RoleAdmin, RoleUser}
+	roles := []string{RoleAdmin, RoleCampaignManager, RoleEditor, RoleViewer}
 	for _, role := range roles {
 		got, err := GetRoleBySlug(role)
 		c.Assert(err, check.Equals, nil)
@@ -54,4 +68,12 @@ func (s *ModelsSuite) TestGetRoleBySlug(c *check.C) {
 	}
 	_, err := GetRoleBySlug("bogus")
 	c.Assert(err, check.NotNil)
+}
+
+func (s *ModelsSuite) TestIsAssignableRole(c *check.C) {
+	for _, role := range []string{RoleAdmin, RoleCampaignManager, RoleEditor, RoleViewer} {
+		c.Assert(IsAssignableRole(role), check.Equals, true)
+	}
+	c.Assert(IsAssignableRole("user"), check.Equals, false)
+	c.Assert(IsAssignableRole("unsupported"), check.Equals, false)
 }

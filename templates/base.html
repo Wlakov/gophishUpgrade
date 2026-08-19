@@ -19,7 +19,9 @@
         {{if .User}}
     var user = {
         api_key : {{ .User.ApiKey }},
-        username : {{ .User.Username }}
+        username : {{ .User.Username }},
+        can_modify_objects : {{ .ModifyObjects }},
+        can_manage_campaigns : {{ .ManageCampaigns }}
     }
     {{end}}
     {{if .Token}}

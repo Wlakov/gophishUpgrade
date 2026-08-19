@@ -32,6 +32,7 @@ type userRequest struct {
 	Username               string `json:"username"`
 	Password               string `json:"password"`
 	Role                   string `json:"role"`
+	ManagerID              *int64 `json:"manager_id"`
 	PasswordChangeRequired bool   `json:"password_change_required"`
 	AccountLocked          bool   `json:"account_locked"`
 }
@@ -42,6 +43,17 @@ func (ur *userRequest) Validate(existingUser *models.User) error {
 		return ErrEmptyUsername
 	case ur.Role == "":
 		return ErrEmptyRole
+	case !models.IsAssignableRole(ur.Role):
+		return ErrEmptyRole
+	}
+	if existingUser == nil || ur.ManagerID != nil || ur.Role != existingUser.Role.Slug {
+		userID := int64(0)
+		if existingUser != nil {
+			userID = existingUser.Id
+		}
+		if err := models.ValidateManagerAssignment(ur.Role, ur.ManagerID, userID); err != nil {
+			return err
+		}
 	}
 	// Verify that the username isn't already taken. We consider two cases:
 	// * We're creating a new user, in which case any match is a conflict
@@ -108,6 +120,7 @@ func (as *Server) Users(w http.ResponseWriter, r *http.Request) {
 			ApiKey:                 auth.GenerateSecureKey(auth.APIKeyLength),
 			Role:                   role,
 			RoleID:                 role.ID,
+			ManagerID:              ur.ManagerID,
 			PasswordChangeRequired: ur.PasswordChangeRequired,
 			AccountLocked:          ur.AccountLocked,
 		}
@@ -177,10 +190,26 @@ func (as *Server) User(w http.ResponseWriter, r *http.Request) {
 			JSONResponse(w, models.Response{Success: false, Message: ErrInsufficientPermission.Error()}, http.StatusBadRequest)
 			return
 		}
+		if !hasSystem && ur.ManagerID != nil && (existingUser.ManagerID == nil || *ur.ManagerID != *existingUser.ManagerID) {
+			JSONResponse(w, models.Response{Success: false, Message: ErrInsufficientPermission.Error()}, http.StatusBadRequest)
+			return
+		}
 		role, err := models.GetRoleBySlug(ur.Role)
 		if err != nil {
 			JSONResponse(w, models.Response{Success: false, Message: err.Error()}, http.StatusInternalServerError)
 			return
+		}
+		roleChanged := existingUser.Role.ID != role.ID
+		if existingUser.Role.Slug == models.RoleCampaignManager && roleChanged {
+			members, err := models.GetDepartmentMembers(existingUser.Id)
+			if err != nil {
+				JSONResponse(w, models.Response{Success: false, Message: err.Error()}, http.StatusInternalServerError)
+				return
+			}
+			if len(members) > 0 {
+				JSONResponse(w, models.Response{Success: false, Message: models.ErrManagerHasMembers.Error()}, http.StatusBadRequest)
+				return
+			}
 		}
 		// If our user is trying to change the role of an admin, we need to
 		// ensure that it isn't the last user account with the Admin role.
@@ -193,6 +222,12 @@ func (as *Server) User(w http.ResponseWriter, r *http.Request) {
 		}
 		existingUser.Role = role
 		existingUser.RoleID = role.ID
+		if ur.ManagerID != nil || roleChanged {
+			existingUser.ManagerID = ur.ManagerID
+		}
+		if role.Slug == models.RoleAdmin || role.Slug == models.RoleCampaignManager {
+			existingUser.ManagerID = nil
+		}
 		// We don't force the password to be provided, since it may be an admin
 		// managing the user's account, and making a simple change like
 		// updating the username or role. However, if it _is_ provided, we'll

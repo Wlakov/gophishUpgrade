@@ -99,7 +99,7 @@ function load() {
                 escapeHtml(scenario.page.name),
                 escapeHtml(scenario.smtp.name),
                 moment(scenario.modified_date).format("MMMM Do YYYY, h:mm:ss a"),
-                "<div class='pull-right'><span data-toggle='modal' data-backdrop='static' data-target='#modal'><button class='btn btn-primary' onclick='edit(" + idx + ")'><i class='fa fa-pencil'></i></button></span> <button class='btn btn-danger' onclick='deleteScenario(" + idx + ")'><i class='fa fa-trash-o'></i></button></div>"
+                user.can_modify_objects ? "<div class='pull-right'><span data-toggle='modal' data-backdrop='static' data-target='#modal'><button class='btn btn-primary' onclick='edit(" + idx + ")'><i class='fa fa-pencil'></i></button></span> <button class='btn btn-danger' onclick='deleteScenario(" + idx + ")'><i class='fa fa-trash-o'></i></button></div>" : ""
             ]]
         })
         table.clear().rows.add(rows).draw()

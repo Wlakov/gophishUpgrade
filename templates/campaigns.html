@@ -6,11 +6,13 @@
         </h1>
     </div>
     <div id="flashes" class="row"></div>
+    {{if .ManageCampaigns}}
     <div class="row">
         <button type="button" class="btn btn-primary" data-toggle="modal" data-backdrop="static" data-target="#modal"
             onclick="edit('new')">
             <i class="fa fa-plus"></i> New Campaign</button>
     </div>
+    {{end}}
     &nbsp;
 
     <ul class="nav nav-tabs" role="tablist">

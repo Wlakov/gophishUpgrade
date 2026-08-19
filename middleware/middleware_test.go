@@ -56,13 +56,21 @@ func TestEnforceViewOnly(t *testing.T) {
 			http.MethodPut:     http.StatusOK,
 			http.MethodDelete:  http.StatusOK,
 		},
-		models.RoleUser: MiddlewarePermissionTest{
+		models.RoleEditor: MiddlewarePermissionTest{
 			http.MethodGet:     http.StatusOK,
 			http.MethodHead:    http.StatusOK,
 			http.MethodOptions: http.StatusOK,
 			http.MethodPost:    http.StatusOK,
 			http.MethodPut:     http.StatusOK,
 			http.MethodDelete:  http.StatusOK,
+		},
+		models.RoleViewer: MiddlewarePermissionTest{
+			http.MethodGet:     http.StatusOK,
+			http.MethodHead:    http.StatusOK,
+			http.MethodOptions: http.StatusOK,
+			http.MethodPost:    http.StatusForbidden,
+			http.MethodPut:     http.StatusForbidden,
+			http.MethodDelete:  http.StatusForbidden,
 		},
 	}
 	for r, checks := range permissionTests {
@@ -95,8 +103,8 @@ func TestRequirePermission(t *testing.T) {
 	handler := middleware(successHandler)
 
 	permissionTests := map[string]int{
-		models.RoleUser:  http.StatusForbidden,
-		models.RoleAdmin: http.StatusOK,
+		models.RoleEditor: http.StatusForbidden,
+		models.RoleAdmin:  http.StatusOK,
 	}
 
 	for role, expected := range permissionTests {
