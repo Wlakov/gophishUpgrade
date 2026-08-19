@@ -32,6 +32,8 @@ func (s *ModelsSuite) SetUpSuite(c *check.C) {
 func (s *ModelsSuite) TearDownTest(c *check.C) {
 	// Clear database tables between each test. If new tables are
 	// used in this test suite they will need to be cleaned up here.
+	db.Delete(CampaignScenario{})
+	db.Delete(PhishingScenario{})
 	db.Delete(Group{})
 	db.Delete(Target{})
 	db.Delete(GroupTarget{})
@@ -124,6 +126,8 @@ func tearDownBenchmark(b *testing.B) {
 }
 
 func resetBenchmark(b *testing.B) {
+	db.Delete(CampaignScenario{})
+	db.Delete(PhishingScenario{})
 	db.Delete(Group{})
 	db.Delete(Target{})
 	db.Delete(GroupTarget{})

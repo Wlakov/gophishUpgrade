@@ -9,18 +9,22 @@ function optionsFor(items) {
 function loadOptions(scenario) {
     api.templates.get().success(function (templates) {
         $("#template").empty().select2({ placeholder: "Select an Email Template", data: optionsFor(templates) })
+        if (scenario) {
+            $("#template").val(scenario.template_id).trigger("change")
+        }
     })
     api.pages.get().success(function (pages) {
         $("#page").empty().select2({ placeholder: "Select a Landing Page", data: optionsFor(pages) })
+        if (scenario) {
+            $("#page").val(scenario.page_id).trigger("change")
+        }
     })
     api.SMTP.get().success(function (profiles) {
         $("#profile").empty().select2({ placeholder: "Select a Sending Profile", data: optionsFor(profiles) })
+        if (scenario) {
+            $("#profile").val(scenario.smtp_id).trigger("change")
+        }
     })
-    if (scenario) {
-        $("#template").val(scenario.template_id).trigger("change")
-        $("#page").val(scenario.page_id).trigger("change")
-        $("#profile").val(scenario.smtp_id).trigger("change")
-    }
 }
 
 function dismiss() {
