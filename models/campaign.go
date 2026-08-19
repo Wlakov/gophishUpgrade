@@ -38,11 +38,12 @@ type Campaign struct {
 
 // CampaignResults is a struct representing the results from a campaign
 type CampaignResults struct {
-	Id      int64    `json:"id"`
-	Name    string   `json:"name"`
-	Status  string   `json:"status"`
-	Results []Result `json:"results,omitempty"`
-	Events  []Event  `json:"timeline,omitempty"`
+	Id            int64           `json:"id"`
+	Name          string          `json:"name"`
+	Status        string          `json:"status"`
+	Results       []Result        `json:"results,omitempty"`
+	Events        []Event         `json:"timeline,omitempty"`
+	ScenarioStats []ScenarioStats `json:"scenario_stats,omitempty"`
 }
 
 // CampaignSummaries is a struct representing the overview of campaigns
@@ -72,6 +73,12 @@ type CampaignStats struct {
 	SubmittedData int64 `json:"submitted_data"`
 	EmailReported int64 `json:"email_reported"`
 	Error         int64 `json:"error"`
+}
+
+// ScenarioStats contains the funnel statistics for one scenario in a campaign.
+type ScenarioStats struct {
+	Scenario PhishingScenario `json:"scenario"`
+	Stats    CampaignStats    `json:"stats"`
 }
 
 // Event contains the fields for an event
@@ -280,8 +287,15 @@ func chooseScenarioID(scenarios []PhishingScenario) (int64, error) {
 // getCampaignStats returns a CampaignStats object for the campaign with the given campaign ID.
 // It also backfills numbers as appropriate with a running total, so that the values are aggregated.
 func getCampaignStats(cid int64) (CampaignStats, error) {
+	return getResultStats(db.Table("results").Where("campaign_id = ?", cid))
+}
+
+// getResultStats calculates cumulative funnel statistics for the result query.
+// A click implies an open and delivery; submitted data implies a click, open,
+// and delivery. This matches the campaign-level statistics already shown by
+// Gophish.
+func getResultStats(query *gorm.DB) (CampaignStats, error) {
 	s := CampaignStats{}
-	query := db.Table("results").Where("campaign_id = ?", cid)
 	err := query.Count(&s.Total).Error
 	if err != nil {
 		return s, err
@@ -314,6 +328,22 @@ func getCampaignStats(cid int64) (CampaignStats, error) {
 	s.EmailsSent += s.OpenedEmail
 	err = query.Where("status=?", Error).Count(&s.Error).Error
 	return s, err
+}
+
+func getCampaignScenarioStats(campaignID int64, uid int64) ([]ScenarioStats, error) {
+	scenarios, err := GetCampaignScenarios(campaignID, uid)
+	if err != nil {
+		return nil, err
+	}
+	stats := make([]ScenarioStats, 0, len(scenarios))
+	for _, scenario := range scenarios {
+		resultStats, err := getResultStats(db.Table("results").Where("campaign_id = ? AND scenario_id = ?", campaignID, scenario.Id))
+		if err != nil {
+			return nil, err
+		}
+		stats = append(stats, ScenarioStats{Scenario: scenario, Stats: resultStats})
+	}
+	return stats, nil
 }
 
 // GetCampaigns returns the campaigns owned by the given user.
@@ -440,6 +470,11 @@ func GetCampaignResults(id int64, uid int64) (CampaignResults, error) {
 	err = db.Table("events").Where("campaign_id=?", cr.Id).Find(&cr.Events).Error
 	if err != nil {
 		log.Errorf("%s: events not found for campaign", err)
+		return cr, err
+	}
+	cr.ScenarioStats, err = getCampaignScenarioStats(cr.Id, uid)
+	if err != nil {
+		log.Errorf("%s: scenario statistics not found for campaign", err)
 		return cr, err
 	}
 	return cr, err

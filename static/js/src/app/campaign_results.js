@@ -622,6 +622,43 @@ function createStatusLabel(status, send_date) {
     return statusColumn
 }
 
+function percentage(value, total) {
+    if (total === 0) {
+        return "—"
+    }
+    return Math.round((value / total) * 100) + "%"
+}
+
+function statCell(value, rate) {
+    return "<td class='text-right'>" + value + " <span class='text-muted'>" + rate + "</span></td>"
+}
+
+function renderScenarioStats(scenarioStats) {
+    var tableBody = $("#scenarioStatsTable tbody")
+    tableBody.empty()
+    if (!scenarioStats || scenarioStats.length === 0) {
+        $("#scenarioStatsContainer").hide()
+        return
+    }
+    $.each(scenarioStats, function (_, scenarioStat) {
+        var scenario = scenarioStat.scenario
+        var stats = scenarioStat.stats
+        var description = escapeHtml(scenario.template.name) + " / " + escapeHtml(scenario.page.name) + " / " + escapeHtml(scenario.smtp.name)
+        var row = "<tr>" +
+            "<td><strong>" + escapeHtml(scenario.name) + "</strong><br><small class='text-muted'>" + description + "</small></td>" +
+            "<td class='text-right'>" + stats.total + "</td>" +
+            statCell(stats.sent, percentage(stats.sent, stats.total)) +
+            statCell(stats.opened, percentage(stats.opened, stats.sent)) +
+            statCell(stats.clicked, percentage(stats.clicked, stats.opened)) +
+            statCell(stats.submitted_data, percentage(stats.submitted_data, stats.clicked)) +
+            statCell(stats.email_reported, percentage(stats.email_reported, stats.sent)) +
+            "<td class='text-right'>" + stats.error + "</td>" +
+            "</tr>"
+        tableBody.append(row)
+    })
+    $("#scenarioStatsContainer").show()
+}
+
 /* poll - Queries the API and updates the UI with the results
  *
  * Updates:
@@ -634,6 +671,7 @@ function poll() {
     api.campaignId.results(campaign.id)
         .success(function (c) {
             campaign = c
+            renderScenarioStats(campaign.scenario_stats)
             /* Update the timeline */
             var timeline_series_data = []
             $.each(campaign.timeline, function (i, event) {
@@ -731,6 +769,7 @@ function load() {
                 $("#campaignResults").show()
                 // Set the title
                 $("#page-title").text("Results for " + c.name)
+                renderScenarioStats(campaign.scenario_stats)
                 if (c.status == "Completed") {
                     $('#complete_button')[0].disabled = true;
                     $('#complete_button').text('Completed!');
