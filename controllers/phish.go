@@ -238,6 +238,14 @@ func (ps *PhishingServer) PhishHandler(w http.ResponseWriter, r *http.Request) {
 		ps.TransparencyHandler(w, r)
 		return
 	}
+	if rs.ScenarioId != 0 {
+		c, err = models.GetCampaignMailContextForScenario(c.Id, c.UserId, rs.ScenarioId)
+		if err != nil {
+			log.Error(err)
+			http.NotFound(w, r)
+			return
+		}
+	}
 
 	p, err := models.GetPage(c.PageId, c.UserId)
 	if err != nil {

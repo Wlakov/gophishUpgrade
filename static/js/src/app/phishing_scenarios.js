@@ -1,0 +1,109 @@
+var scenarios = []
+
+function optionsFor(items) {
+    return $.map(items, function (item) {
+        return { id: item.id, text: item.name }
+    })
+}
+
+function loadOptions(scenario) {
+    api.templates.get().success(function (templates) {
+        $("#template").empty().select2({ placeholder: "Select an Email Template", data: optionsFor(templates) })
+    })
+    api.pages.get().success(function (pages) {
+        $("#page").empty().select2({ placeholder: "Select a Landing Page", data: optionsFor(pages) })
+    })
+    api.SMTP.get().success(function (profiles) {
+        $("#profile").empty().select2({ placeholder: "Select a Sending Profile", data: optionsFor(profiles) })
+    })
+    if (scenario) {
+        $("#template").val(scenario.template_id).trigger("change")
+        $("#page").val(scenario.page_id).trigger("change")
+        $("#profile").val(scenario.smtp_id).trigger("change")
+    }
+}
+
+function dismiss() {
+    $("#modal\\.flashes").empty()
+    $("#name").val("")
+    $("#template, #page, #profile").val("").trigger("change")
+}
+
+function save(idx) {
+    var scenario = {
+        name: $("#name").val(),
+        template_id: parseInt($("#template").val(), 10),
+        page_id: parseInt($("#page").val(), 10),
+        smtp_id: parseInt($("#profile").val(), 10)
+    }
+    var request = idx === -1 ? api.scenarios.post(scenario) : api.scenarioId.put($.extend(scenario, { id: scenarios[idx].id }))
+    request.success(function () {
+        successFlash(idx === -1 ? "Scenario created successfully!" : "Scenario updated successfully!")
+        $("#modal").modal("hide")
+        load()
+    }).error(function (data) {
+        modalError(data.responseJSON.message)
+    })
+}
+
+function edit(idx) {
+    var scenario = idx === -1 ? null : scenarios[idx]
+    dismiss()
+    $("#modalLabel").text(idx === -1 ? "New Phishing Scenario" : "Edit Phishing Scenario")
+    loadOptions(scenario)
+    if (scenario) {
+        $("#name").val(scenario.name)
+    }
+    $("#modalSubmit").unbind("click").click(function () { save(idx) })
+}
+
+function deleteScenario(idx) {
+    Swal.fire({
+        title: "Are you sure?",
+        text: "This will delete the scenario. It cannot be undone!",
+        type: "warning",
+        showCancelButton: true,
+        confirmButtonText: "Delete " + scenarios[idx].name,
+        confirmButtonColor: "#428bca",
+        reverseButtons: true
+    }).then(function (result) {
+        if (!result.value) return
+        api.scenarioId.delete(scenarios[idx].id).success(function () {
+            successFlash("Scenario deleted successfully!")
+            load()
+        }).error(function (data) {
+            errorFlash(data.responseJSON.message)
+        })
+    })
+}
+
+function load() {
+    $("#scenariosTable, #emptyMessage").hide()
+    $("#loading").show()
+    api.scenarios.get().success(function (data) {
+        scenarios = data
+        $("#loading").hide()
+        if (scenarios.length === 0) {
+            $("#emptyMessage").show()
+            return
+        }
+        var table = $("#scenariosTable").DataTable({ destroy: true, columnDefs: [{ orderable: false, targets: "no-sort" }] })
+        var rows = $.map(scenarios, function (scenario, idx) {
+            return [[
+                escapeHtml(scenario.name),
+                escapeHtml(scenario.template.name),
+                escapeHtml(scenario.page.name),
+                escapeHtml(scenario.smtp.name),
+                moment(scenario.modified_date).format("MMMM Do YYYY, h:mm:ss a"),
+                "<div class='pull-right'><span data-toggle='modal' data-backdrop='static' data-target='#modal'><button class='btn btn-primary' onclick='edit(" + idx + ")'><i class='fa fa-pencil'></i></button></span> <button class='btn btn-danger' onclick='deleteScenario(" + idx + ")'><i class='fa fa-trash-o'></i></button></div>"
+            ]]
+        })
+        table.clear().rows.add(rows).draw()
+        $("#scenariosTable").show()
+    }).error(function () {
+        $("#loading").hide()
+        errorFlash("Error fetching phishing scenarios")
+    })
+}
+
+$(document).ready(load)

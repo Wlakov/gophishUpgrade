@@ -21,6 +21,31 @@ To build Gophish from source, simply run ```git clone https://github.com/gophish
 ### Docker
 You can also use Gophish via the official Docker container [here](https://hub.docker.com/r/gophish/gophish/).
 
+### Local Docker development
+
+This fork includes a Docker Compose setup for local development. It binds both
+services to `127.0.0.1`, so they are reachable only from the local computer.
+
+1. Copy the example settings:
+
+   ```powershell
+   Copy-Item .env.example .env
+   ```
+
+2. Build and start the application:
+
+   ```powershell
+   docker compose up --build
+   ```
+
+3. Open the admin interface at http://localhost:3333. The local phishing
+   listener is available at http://localhost:8080. Mailpit captures local
+   test emails at http://localhost:8025; use `mailpit:1025` as the SMTP host
+   in a test sending profile.
+
+Use `docker compose down` to stop the application while keeping its data.
+Do not add `-v` unless the local database should be deleted as well.
+
 ### Setup
 After running the Gophish binary, open an Internet browser to https://localhost:3333 and login with the default username and password listed in the log output.
 e.g.

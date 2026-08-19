@@ -1,7 +1,9 @@
 package models
 
 import (
+	"crypto/rand"
 	"errors"
+	"math/big"
 	"net/url"
 	"time"
 
@@ -13,24 +15,25 @@ import (
 
 // Campaign is a struct representing a created campaign
 type Campaign struct {
-	Id            int64     `json:"id"`
-	UserId        int64     `json:"-"`
-	Name          string    `json:"name" sql:"not null"`
-	CreatedDate   time.Time `json:"created_date"`
-	LaunchDate    time.Time `json:"launch_date"`
-	SendByDate    time.Time `json:"send_by_date"`
-	CompletedDate time.Time `json:"completed_date"`
-	TemplateId    int64     `json:"-"`
-	Template      Template  `json:"template"`
-	PageId        int64     `json:"-"`
-	Page          Page      `json:"page"`
-	Status        string    `json:"status"`
-	Results       []Result  `json:"results,omitempty"`
-	Groups        []Group   `json:"groups,omitempty"`
-	Events        []Event   `json:"timeline,omitempty"`
-	SMTPId        int64     `json:"-"`
-	SMTP          SMTP      `json:"smtp"`
-	URL           string    `json:"url"`
+	Id            int64              `json:"id"`
+	UserId        int64              `json:"-"`
+	Name          string             `json:"name" sql:"not null"`
+	CreatedDate   time.Time          `json:"created_date"`
+	LaunchDate    time.Time          `json:"launch_date"`
+	SendByDate    time.Time          `json:"send_by_date"`
+	CompletedDate time.Time          `json:"completed_date"`
+	TemplateId    int64              `json:"-"`
+	Template      Template           `json:"template"`
+	PageId        int64              `json:"-"`
+	Page          Page               `json:"page"`
+	Status        string             `json:"status"`
+	Results       []Result           `json:"results,omitempty"`
+	Groups        []Group            `json:"groups,omitempty"`
+	Events        []Event            `json:"timeline,omitempty"`
+	SMTPId        int64              `json:"-"`
+	SMTP          SMTP               `json:"smtp"`
+	Scenarios     []PhishingScenario `json:"scenarios,omitempty" gorm:"-"`
+	URL           string             `json:"url"`
 }
 
 // CampaignResults is a struct representing the results from a campaign
@@ -226,6 +229,10 @@ func (c *Campaign) getDetails() error {
 		log.Warn(err)
 		return err
 	}
+	c.Scenarios, err = GetCampaignScenarios(c.Id, c.UserId)
+	if err != nil {
+		return err
+	}
 	return nil
 }
 
@@ -260,6 +267,14 @@ func (c *Campaign) generateSendDate(idx int, totalRecipients int) time.Time {
 	// Finally, we can just add this offset to the launch date to determine
 	// when the email should be sent
 	return c.LaunchDate.Add(time.Duration(offset) * time.Minute)
+}
+
+func chooseScenarioID(scenarios []PhishingScenario) (int64, error) {
+	choice, err := rand.Int(rand.Reader, big.NewInt(int64(len(scenarios))))
+	if err != nil {
+		return 0, err
+	}
+	return scenarios[choice.Int64()].Id, nil
 }
 
 // getCampaignStats returns a CampaignStats object for the campaign with the given campaign ID.
@@ -450,6 +465,19 @@ func GetQueuedCampaigns(t time.Time) ([]Campaign, error) {
 
 // PostCampaign inserts a campaign and all associated records into the database.
 func PostCampaign(c *Campaign, uid int64) error {
+	// New campaigns can use reusable scenarios. The first scenario is also
+	// copied into the legacy campaign fields so existing code and API clients
+	// remain compatible.
+	if len(c.Scenarios) > 0 {
+		scenarios, err := ResolvePhishingScenarios(c.Scenarios, uid)
+		if err != nil {
+			return err
+		}
+		c.Scenarios = scenarios
+		c.Template = scenarios[0].Template
+		c.Page = scenarios[0].Page
+		c.SMTP = scenarios[0].SMTP
+	}
 	err := c.Validate()
 	if err != nil {
 		return err
@@ -532,6 +560,12 @@ func PostCampaign(c *Campaign, uid int64) error {
 		log.Error(err)
 		return err
 	}
+	for _, scenario := range c.Scenarios {
+		link := &CampaignScenario{CampaignId: c.Id, ScenarioId: scenario.Id}
+		if err := db.Save(link).Error; err != nil {
+			return err
+		}
+	}
 	err = AddEvent(&Event{Message: "Campaign Created"}, c.Id)
 	if err != nil {
 		log.Error(err)
@@ -563,6 +597,13 @@ func PostCampaign(c *Campaign, uid int64) error {
 				SendDate:     sendDate,
 				Reported:     false,
 				ModifiedDate: c.CreatedDate,
+			}
+			if len(c.Scenarios) > 0 {
+				r.ScenarioId, err = chooseScenarioID(c.Scenarios)
+				if err != nil {
+					tx.Rollback()
+					return err
+				}
 			}
 			err = r.GenerateId(tx)
 			if err != nil {
@@ -614,8 +655,12 @@ func DeleteCampaign(id int64) error {
 	log.WithFields(logrus.Fields{
 		"campaign_id": id,
 	}).Info("Deleting campaign")
+	err := db.Where("campaign_id=?", id).Delete(&CampaignScenario{}).Error
+	if err != nil {
+		return err
+	}
 	// Delete all the campaign results
-	err := db.Where("campaign_id=?", id).Delete(&Result{}).Error
+	err = db.Where("campaign_id=?", id).Delete(&Result{}).Error
 	if err != nil {
 		log.Error(err)
 		return err

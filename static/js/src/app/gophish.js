@@ -86,6 +86,25 @@ var api = {
             return query("/campaigns/summary", "GET", {}, false)
         }
     },
+    scenarios: {
+        get: function () {
+            return query("/phishing_scenarios/", "GET", {}, false)
+        },
+        post: function (scenario) {
+            return query("/phishing_scenarios/", "POST", scenario, false)
+        }
+    },
+    scenarioId: {
+        get: function (id) {
+            return query("/phishing_scenarios/" + id, "GET", {}, false)
+        },
+        put: function (scenario) {
+            return query("/phishing_scenarios/" + scenario.id, "PUT", scenario, false)
+        },
+        delete: function (id) {
+            return query("/phishing_scenarios/" + id, "DELETE", {}, false)
+        }
+    },
     // campaignId contains the endpoints for /campaigns/:id
     campaignId: {
         // get() - Queries the API for GET /campaigns/:id
