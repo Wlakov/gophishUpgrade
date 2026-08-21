@@ -2,39 +2,43 @@
 <div class="container-fluid">
     <div class="row">
         <div class="col-sm-3 col-md-2 sidebar">
-            <ul class="nav nav-sidebar">
+            <ul class="nav nav-sidebar app-sidebar-nav">
+                <li class="app-sidebar-section">Робочий простір</li>
                 <li>
-                    <a href="/">Dashboard</a>
+                    <a href="/" data-nav-path="/"><i class="fa fa-tachometer"></i><span>Огляд</span></a>
                 </li>
                 <li>
-                    <a href="/campaigns">Campaigns</a>
+                    <a href="/campaigns" data-nav-path="/campaigns"><i class="fa fa-bullhorn"></i><span>Кампанії</span></a>
                 </li>
                 <li>
-                    <a href="/groups">Users &amp; Groups</a>
-                </li>
-                <li> <a href="/templates">Email Templates</a>
+                    <a href="/groups" data-nav-path="/groups"><i class="fa fa-users"></i><span>Користувачі та групи</span></a>
                 </li>
                 <li>
-                    <a href="/landing_pages">Landing Pages</a>
+                    <a href="/templates" data-nav-path="/templates"><i class="fa fa-envelope-o"></i><span>Шаблони листів</span></a>
                 </li>
                 <li>
-                    <a href="/sending_profiles">Sending Profiles</a>
+                    <a href="/landing_pages" data-nav-path="/landing_pages"><i class="fa fa-file-text-o"></i><span>Сторінки переходу</span></a>
                 </li>
                 <li>
-                    <a href="/phishing_scenarios">Phishing Scenarios</a>
+                    <a href="/sending_profiles" data-nav-path="/sending_profiles"><i class="fa fa-paper-plane-o"></i><span>Профілі відправлення</span></a>
                 </li>
                 <li>
-                    <a href="/settings">Account Settings</span></a>
+                    <a href="/phishing_scenarios" data-nav-path="/phishing_scenarios"><i class="fa fa-random"></i><span>Фішингові сценарії</span></a>
+                </li>
+                <li class="app-sidebar-section account">Обліковий запис</li>
+                <li>
+                    <a href="/settings" data-nav-path="/settings"><i class="fa fa-cog"></i><span>Налаштування</span></a>
                 </li>
                 {{if .ModifySystem}}
+                <li class="app-sidebar-section admin">Адміністрування</li>
                 <li>
-                    <a href="/users">User Management<span class="nav-badge badge pull-right">Admin</span></a>
+                    <a href="/users" data-nav-path="/users"><i class="fa fa-user"></i><span>Користувачі</span><span class="nav-badge badge pull-right">Адмін</span></a>
                 </li>
                 <li>
-                    <a href="/user_campaigns">Users Campaigns<span class="nav-badge badge pull-right">Admin</span></a>
+                    <a href="/user_campaigns" data-nav-path="/user_campaigns"><i class="fa fa-sitemap"></i><span>Кампанії користувачів</span><span class="nav-badge badge pull-right">Адмін</span></a>
                 </li>
                 <li>
-                    <a href="/webhooks">Webhooks<span class="nav-badge badge pull-right">Admin</span></a>
+                    <a href="/webhooks" data-nav-path="/webhooks"><i class="fa fa-exchange"></i><span>Вебхуки</span><span class="nav-badge badge pull-right">Адмін</span></a>
                 </li>
                 {{end}}
             </ul>

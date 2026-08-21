@@ -1709,3 +1709,201 @@ table.dataTable {
         width: 100%;
     }
 }
+
+/* Application typography and navigation */
+body,
+button,
+input,
+select,
+textarea {
+    background-color: #f6f8fb;
+    color: #34495e;
+    font-family: "Inter", "Segoe UI", Roboto, Arial, sans-serif;
+    font-size: 14px;
+    letter-spacing: .005em;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+.page-header,
+.navbar-brand,
+.btn,
+.panel-heading,
+.table > thead > tr > th {
+    font-family: "Inter", "Segoe UI", Roboto, Arial, sans-serif;
+}
+
+.page-header {
+    color: #253b4d;
+    font-weight: 700;
+    letter-spacing: -.025em;
+}
+
+p {
+    font-size: 1.1em;
+    line-height: 1.55;
+}
+
+.navbar.navbar-inverse {
+    background: #1f2d3a;
+    border: 0;
+    box-shadow: 0 2px 10px rgba(26, 42, 54, .16);
+}
+
+.navbar-logo {
+    margin: 8px 2px 0 4px;
+}
+
+.navbar-inverse .navbar-brand {
+    color: #f4f8fb;
+    font-size: 19px;
+    font-weight: 700;
+    letter-spacing: -.02em;
+    padding-left: 5px;
+}
+
+.navbar-inverse .navbar-brand:hover,
+.navbar-inverse .navbar-brand:focus {
+    color: #fff;
+}
+
+#navbar-dropdown .btn {
+    background: #337ab7;
+    border-color: #337ab7;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+#navbar-dropdown .btn:hover,
+#navbar-dropdown .btn:focus {
+    background: #286090;
+    border-color: #286090;
+}
+
+.sidebar {
+    background: #eef3f7;
+    border-right: 1px solid #d9e3ea;
+    box-shadow: 3px 0 14px rgba(29, 43, 55, .06);
+    padding: 18px 11px;
+}
+
+.app-sidebar-nav {
+    margin: 0 -11px;
+    padding: 0 11px 22px;
+}
+
+.app-sidebar-nav > li {
+    margin: 2px 0;
+}
+
+.app-sidebar-nav > li > a {
+    align-items: center;
+    border-left: 3px solid transparent;
+    border-radius: 5px;
+    color: #263f52;
+    display: flex;
+    font-size: 13px;
+    font-weight: 500;
+    min-height: 42px;
+    padding: 10px 11px;
+    transition: background-color .16s ease, color .16s ease, border-color .16s ease;
+}
+
+.app-sidebar-nav > li > a > i {
+    color: #52748b;
+    font-size: 15px;
+    margin-right: 12px;
+    text-align: center;
+    transition: color .16s ease;
+    width: 17px;
+}
+
+.app-sidebar-nav > li > a > span:not(.badge) {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.app-sidebar-nav > li > a:hover,
+.app-sidebar-nav > li > a:focus {
+    background: #dfeaf1;
+    color: #172f42;
+}
+
+.app-sidebar-nav > li > a:hover > i,
+.app-sidebar-nav > li > a:focus > i {
+    color: #286090;
+}
+
+.app-sidebar-nav > li.active > a,
+.app-sidebar-nav > li.active > a:hover,
+.app-sidebar-nav > li.active > a:focus {
+    background: #d5e6f1;
+    border-left-color: #337ab7;
+    color: #17354a;
+    font-weight: 600;
+}
+
+.app-sidebar-nav > li.active > a > i {
+    color: #1d6ea4;
+}
+
+.app-sidebar-section {
+    color: #5f7687;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: .1em;
+    margin: 20px 8px 7px !important;
+    text-transform: uppercase;
+}
+
+.app-sidebar-section:first-child {
+    margin-top: 2px !important;
+}
+
+.app-sidebar-section.account,
+.app-sidebar-section.admin {
+    border-top: 1px solid #d4e0e8;
+    padding-top: 17px;
+}
+
+.app-sidebar-nav .nav-badge {
+    background: #d7eaf6;
+    border: 1px solid #bdd8e8;
+    color: #285a7d;
+    font-size: 9px;
+    font-weight: 600;
+    margin: 0 0 0 auto;
+    padding: 3px 6px;
+}
+
+@media (min-width: 768px) {
+    .sidebar {
+        bottom: 0;
+        overflow-x: hidden;
+        overflow-y: auto;
+        position: fixed;
+        top: 50px;
+        z-index: 1000;
+    }
+}
+
+@media (max-width: 767px) {
+    .sidebar {
+        box-shadow: none;
+        padding: 12px 15px;
+    }
+
+    .app-sidebar-nav {
+        margin: 0;
+        padding: 0;
+    }
+
+    .app-sidebar-nav > li > a {
+        min-height: 38px;
+    }
+}

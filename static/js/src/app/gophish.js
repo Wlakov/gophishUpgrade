@@ -54,6 +54,18 @@ function escapeHtml(text) {
 }
 window.escapeHtml = escapeHtml
 
+$(document).ready(function () {
+    var currentPath = window.location.pathname.replace(/\/$/, "") || "/"
+    $(".app-sidebar-nav a[data-nav-path]").each(function () {
+        var link = $(this)
+        var targetPath = link.data("nav-path")
+        var isActive = targetPath === "/"
+            ? currentPath === "/"
+            : currentPath === targetPath || currentPath.indexOf(targetPath + "/") === 0
+        link.closest("li").toggleClass("active", isActive)
+    })
+})
+
 function unescapeHtml(html) {
     return $("<div/>").html(html).text()
 }
