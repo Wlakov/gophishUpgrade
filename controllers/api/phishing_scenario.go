@@ -6,7 +6,6 @@ import (
 	"strconv"
 	"time"
 
-	ctx "github.com/gophish/gophish/context"
 	"github.com/gophish/gophish/models"
 	"github.com/gorilla/mux"
 	"github.com/jinzhu/gorm"
@@ -14,7 +13,7 @@ import (
 
 // PhishingScenarios handles the collection endpoint for reusable scenarios.
 func (as *Server) PhishingScenarios(w http.ResponseWriter, r *http.Request) {
-	uid := ctx.Get(r, "user_id").(int64)
+	uid := workspaceOwnerID(r)
 	switch r.Method {
 	case http.MethodGet:
 		scenarios, err := models.GetPhishingScenarios(uid)
@@ -47,7 +46,7 @@ func (as *Server) PhishingScenarios(w http.ResponseWriter, r *http.Request) {
 // PhishingScenario handles a single scenario resource.
 func (as *Server) PhishingScenario(w http.ResponseWriter, r *http.Request) {
 	id, _ := strconv.ParseInt(mux.Vars(r)["id"], 10, 64)
-	uid := ctx.Get(r, "user_id").(int64)
+	uid := workspaceOwnerID(r)
 	scenario, err := models.GetPhishingScenario(id, uid)
 	if err != nil {
 		JSONResponse(w, models.Response{Success: false, Message: "Phishing scenario not found"}, http.StatusNotFound)

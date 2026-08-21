@@ -15,25 +15,29 @@ import (
 
 // Campaign is a struct representing a created campaign
 type Campaign struct {
-	Id            int64              `json:"id"`
-	UserId        int64              `json:"-"`
-	Name          string             `json:"name" sql:"not null"`
-	CreatedDate   time.Time          `json:"created_date"`
-	LaunchDate    time.Time          `json:"launch_date"`
-	SendByDate    time.Time          `json:"send_by_date"`
-	CompletedDate time.Time          `json:"completed_date"`
-	TemplateId    int64              `json:"-"`
-	Template      Template           `json:"template"`
-	PageId        int64              `json:"-"`
-	Page          Page               `json:"page"`
-	Status        string             `json:"status"`
-	Results       []Result           `json:"results,omitempty"`
-	Groups        []Group            `json:"groups,omitempty"`
-	Events        []Event            `json:"timeline,omitempty"`
-	SMTPId        int64              `json:"-"`
-	SMTP          SMTP               `json:"smtp"`
-	Scenarios     []PhishingScenario `json:"scenarios,omitempty" gorm:"-"`
-	URL           string             `json:"url"`
+	Id            int64     `json:"id"`
+	UserId        int64     `json:"-"`
+	Name          string    `json:"name" sql:"not null"`
+	CreatedDate   time.Time `json:"created_date"`
+	LaunchDate    time.Time `json:"launch_date"`
+	SendByDate    time.Time `json:"send_by_date"`
+	CompletedDate time.Time `json:"completed_date"`
+	TemplateId    int64     `json:"-"`
+	Template      Template  `json:"template"`
+	PageId        int64     `json:"-"`
+	Page          Page      `json:"page"`
+	Status        string    `json:"status"`
+	Results       []Result  `json:"results,omitempty"`
+	Groups        []Group   `json:"groups,omitempty"`
+	// GroupsInferred is true when a legacy campaign did not preserve its
+	// selected groups. In that case the groups are matched to campaign
+	// recipients so the administrator still has useful context.
+	GroupsInferred bool               `json:"groups_inferred,omitempty" gorm:"-"`
+	Events         []Event            `json:"timeline,omitempty"`
+	SMTPId         int64              `json:"-"`
+	SMTP           SMTP               `json:"smtp"`
+	Scenarios      []PhishingScenario `json:"scenarios,omitempty" gorm:"-"`
+	URL            string             `json:"url"`
 }
 
 // CampaignGroup preserves the groups selected when a campaign is created so
@@ -248,16 +252,27 @@ func (c *Campaign) getDetails() error {
 		return err
 	}
 	c.Groups = make([]Group, 0, len(links))
-	for _, link := range links {
-		group, groupErr := GetGroup(link.GroupId, c.UserId)
-		if groupErr != nil {
-			if groupErr == gorm.ErrRecordNotFound {
-				continue
-			}
-			return groupErr
+	if len(links) == 0 {
+		// Campaign-group links were introduced after campaigns already existed
+		// in deployments. Match their saved recipients to the owner's groups
+		// rather than leaving the administrator's view empty.
+		c.GroupsInferred = true
+		c.Groups, err = getCampaignGroupsByRecipients(c.UserId, c.Results)
+		if err != nil {
+			return err
 		}
-		if group.Id != 0 {
-			c.Groups = append(c.Groups, group)
+	} else {
+		for _, link := range links {
+			group, groupErr := GetGroup(link.GroupId, c.UserId)
+			if groupErr != nil {
+				if groupErr == gorm.ErrRecordNotFound {
+					continue
+				}
+				return groupErr
+			}
+			if group.Id != 0 {
+				c.Groups = append(c.Groups, group)
+			}
 		}
 	}
 	c.Scenarios, err = GetCampaignScenarios(c.Id, c.UserId)
@@ -265,6 +280,34 @@ func (c *Campaign) getDetails() error {
 		return err
 	}
 	return nil
+}
+
+// getCampaignGroupsByRecipients provides a best-effort group list for
+// campaigns created before campaign_groups was introduced. A result is a
+// stable snapshot of a campaign recipient, so matching its email address to a
+// current group is the closest available historical association.
+func getCampaignGroupsByRecipients(uid int64, results []Result) ([]Group, error) {
+	recipientEmails := make(map[string]bool, len(results))
+	for _, result := range results {
+		recipientEmails[result.Email] = true
+	}
+	if len(recipientEmails) == 0 {
+		return []Group{}, nil
+	}
+	groups, err := GetGroups(uid)
+	if err != nil {
+		return nil, err
+	}
+	matched := make([]Group, 0)
+	for _, group := range groups {
+		for _, target := range group.Targets {
+			if recipientEmails[target.Email] {
+				matched = append(matched, group)
+				break
+			}
+		}
+	}
+	return matched, nil
 }
 
 // getBaseURL returns the Campaign's configured URL.

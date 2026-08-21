@@ -10,13 +10,14 @@ By default, Gophish has four separate roles, with each user being assigned to
 a single role:
 
 * Admin            - Manages users and system-level configuration
-* Campaign Manager - Manages and launches their own campaigns
-* Editor           - Manages their own campaign materials, but cannot launch campaigns
-* Viewer           - Can only view their own campaign materials and results
+* Campaign Manager - Manages and launches their department's campaigns
+* Editor           - Manages the shared materials of their assigned department,
+                   but cannot launch campaigns
+* Viewer           - Views the shared materials and results of their assigned
+                   department without changing them
 
-It's important to note that these are global roles. In the future, we'll likely
-add the concept of teams, which will include their own roles and permission
-system similar to these global permissions.
+Editors and viewers are assigned to a campaign manager. This creates a shared
+department workspace while keeping data isolated from other departments.
 
 Each role maps to one or more permissions, making it easy to add more granular
 permissions over time.
@@ -33,12 +34,12 @@ const (
 	// system-level configuration, such as users and URLs.
 	RoleAdmin = "admin"
 	// RoleCampaignManager is used for users who can launch and manage their
-	// own campaigns.
+	// department's campaigns.
 	RoleCampaignManager = "campaign_manager"
-	// RoleEditor is used for users who can manage their own campaign materials
-	// but cannot launch or complete campaigns.
+	// RoleEditor is used for users who can manage their department's campaign
+	// materials but cannot launch or complete campaigns.
 	RoleEditor = "editor"
-	// RoleViewer is used for users who can only view their own objects.
+	// RoleViewer is used for users who can only view their department's objects.
 	RoleViewer = "viewer"
 
 	// PermissionViewObjects determines if a role can view standard Gophish

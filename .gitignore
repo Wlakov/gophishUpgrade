@@ -32,3 +32,7 @@ gophish
 
 # Local Docker settings
 .env
+
+# Generated local mail-server keys and configuration.
+docker/mailserver/config/*
+!docker/mailserver/config/.gitkeep

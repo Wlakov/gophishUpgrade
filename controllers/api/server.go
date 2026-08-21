@@ -58,8 +58,10 @@ func (as *Server) registerRoutes() {
 	router := root.PathPrefix("/api/").Subrouter()
 	router.Use(mid.RequireAPIKey)
 	router.Use(mid.EnforceViewOnly)
-	router.HandleFunc("/imap/", as.IMAPServer)
-	router.HandleFunc("/imap/validate", as.IMAPServerValidate)
+	// Reporting settings contain mailbox credentials and can initiate IMAP
+	// connections, so viewers must not be able to read, test, or change them.
+	router.HandleFunc("/imap/", mid.Use(as.IMAPServer, mid.RequirePermission(models.PermissionModifyObjects)))
+	router.HandleFunc("/imap/validate", mid.Use(as.IMAPServerValidate, mid.RequirePermission(models.PermissionModifyObjects)))
 	router.HandleFunc("/reset", as.Reset)
 	router.HandleFunc("/campaigns/", as.Campaigns)
 	router.HandleFunc("/campaigns/summary", as.CampaignsSummary)

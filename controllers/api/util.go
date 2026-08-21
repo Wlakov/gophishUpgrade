@@ -5,7 +5,6 @@ import (
 	"net/http"
 	"net/mail"
 
-	ctx "github.com/gophish/gophish/context"
 	log "github.com/gophish/gophish/logger"
 	"github.com/gophish/gophish/models"
 	"github.com/jinzhu/gorm"
@@ -17,7 +16,7 @@ import (
 func (as *Server) SendTestEmail(w http.ResponseWriter, r *http.Request) {
 	s := &models.EmailRequest{
 		ErrorChan: make(chan error),
-		UserId:    ctx.Get(r, "user_id").(int64),
+		UserId:    workspaceOwnerID(r),
 	}
 	if r.Method != "POST" {
 		JSONResponse(w, models.Response{Success: false, Message: "Method not allowed"}, http.StatusBadRequest)

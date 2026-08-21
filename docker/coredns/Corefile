@@ -1,0 +1,19 @@
+training.test:53 {
+    file /etc/coredns/db.training.test
+    errors
+    log
+}
+
+# Preserve the short service name used by the existing local test setup
+# without intercepting lookups handled by the root forwarding block.
+mailpit:53 {
+    hosts /etc/coredns/hosts
+}
+
+# Docker's embedded resolver keeps service-name lookups (for example,
+# mailpit) working for containers that use CoreDNS as their DNS server.
+.:53 {
+    forward . /etc/resolv.conf
+    cache 30
+    errors
+}

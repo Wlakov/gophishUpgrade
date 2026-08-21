@@ -72,6 +72,19 @@ func (s *ModelsSuite) TestCampaignStoresSelectedGroups(c *check.C) {
 	c.Assert(stored.Groups[0].Name, check.Equals, campaign.Groups[0].Name)
 }
 
+func (s *ModelsSuite) TestCampaignInfersGroupsForLegacyCampaign(c *check.C) {
+	campaign := s.createCampaignDependencies(c)
+	c.Assert(PostCampaign(&campaign, campaign.UserId), check.Equals, nil)
+	// Simulate a campaign created before campaign-group links were retained.
+	c.Assert(db.Where("campaign_id=?", campaign.Id).Delete(&CampaignGroup{}).Error, check.Equals, nil)
+
+	stored, err := GetCampaign(campaign.Id, campaign.UserId)
+	c.Assert(err, check.Equals, nil)
+	c.Assert(stored.GroupsInferred, check.Equals, true)
+	c.Assert(len(stored.Groups), check.Equals, 1)
+	c.Assert(stored.Groups[0].Name, check.Equals, campaign.Groups[0].Name)
+}
+
 func (s *ModelsSuite) TestCampaignDateValidation(c *check.C) {
 	campaign := s.createCampaignDependencies(c)
 	// If both are zero, then the campaign should start immediately with no

@@ -32,9 +32,10 @@ func requireCampaignManagement(w http.ResponseWriter, r *http.Request) bool {
 // Campaigns returns a list of campaigns if requested via GET.
 // If requested via POST, APICampaigns creates a new campaign and returns a reference to it.
 func (as *Server) Campaigns(w http.ResponseWriter, r *http.Request) {
+	uid := workspaceOwnerID(r)
 	switch {
 	case r.Method == "GET":
-		cs, err := models.GetCampaigns(ctx.Get(r, "user_id").(int64))
+		cs, err := models.GetCampaigns(uid)
 		if err != nil {
 			log.Error(err)
 		}
@@ -51,7 +52,7 @@ func (as *Server) Campaigns(w http.ResponseWriter, r *http.Request) {
 			JSONResponse(w, models.Response{Success: false, Message: "Invalid JSON structure"}, http.StatusBadRequest)
 			return
 		}
-		err = models.PostCampaign(&c, ctx.Get(r, "user_id").(int64))
+		err = models.PostCampaign(&c, uid)
 		if err != nil {
 			JSONResponse(w, models.Response{Success: false, Message: err.Error()}, http.StatusBadRequest)
 			return
@@ -67,9 +68,10 @@ func (as *Server) Campaigns(w http.ResponseWriter, r *http.Request) {
 
 // CampaignsSummary returns the summary for the current user's campaigns
 func (as *Server) CampaignsSummary(w http.ResponseWriter, r *http.Request) {
+	uid := workspaceOwnerID(r)
 	switch {
 	case r.Method == "GET":
-		cs, err := models.GetCampaignSummaries(ctx.Get(r, "user_id").(int64))
+		cs, err := models.GetCampaignSummaries(uid)
 		if err != nil {
 			log.Error(err)
 			JSONResponse(w, models.Response{Success: false, Message: err.Error()}, http.StatusInternalServerError)
@@ -84,7 +86,8 @@ func (as *Server) CampaignsSummary(w http.ResponseWriter, r *http.Request) {
 func (as *Server) Campaign(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id, _ := strconv.ParseInt(vars["id"], 0, 64)
-	c, err := models.GetCampaign(id, ctx.Get(r, "user_id").(int64))
+	uid := workspaceOwnerID(r)
+	c, err := models.GetCampaign(id, uid)
 	if err != nil {
 		log.Error(err)
 		JSONResponse(w, models.Response{Success: false, Message: "Campaign not found"}, http.StatusNotFound)
@@ -111,7 +114,7 @@ func (as *Server) Campaign(w http.ResponseWriter, r *http.Request) {
 func (as *Server) CampaignResults(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id, _ := strconv.ParseInt(vars["id"], 0, 64)
-	cr, err := models.GetCampaignResults(id, ctx.Get(r, "user_id").(int64))
+	cr, err := models.GetCampaignResults(id, workspaceOwnerID(r))
 	if err != nil {
 		log.Error(err)
 		JSONResponse(w, models.Response{Success: false, Message: "Campaign not found"}, http.StatusNotFound)
@@ -127,9 +130,10 @@ func (as *Server) CampaignResults(w http.ResponseWriter, r *http.Request) {
 func (as *Server) CampaignSummary(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id, _ := strconv.ParseInt(vars["id"], 0, 64)
+	uid := workspaceOwnerID(r)
 	switch {
 	case r.Method == "GET":
-		cs, err := models.GetCampaignSummary(id, ctx.Get(r, "user_id").(int64))
+		cs, err := models.GetCampaignSummary(id, uid)
 		if err != nil {
 			if err == gorm.ErrRecordNotFound {
 				JSONResponse(w, models.Response{Success: false, Message: "Campaign not found"}, http.StatusNotFound)
@@ -148,12 +152,13 @@ func (as *Server) CampaignSummary(w http.ResponseWriter, r *http.Request) {
 func (as *Server) CampaignComplete(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id, _ := strconv.ParseInt(vars["id"], 0, 64)
+	uid := workspaceOwnerID(r)
 	switch {
 	case r.Method == "GET":
 		if !requireCampaignManagement(w, r) {
 			return
 		}
-		err := models.CompleteCampaign(id, ctx.Get(r, "user_id").(int64))
+		err := models.CompleteCampaign(id, uid)
 		if err != nil {
 			JSONResponse(w, models.Response{Success: false, Message: "Error completing campaign"}, http.StatusInternalServerError)
 			return

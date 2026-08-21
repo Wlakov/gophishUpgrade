@@ -11,15 +11,90 @@ services:
       ADMIN_USE_TLS: "false"
       PHISH_LISTEN_URL: "0.0.0.0:80"
       DB_FILE_PATH: "/opt/gophish/data/gophish.db"
+    depends_on:
+      - coredns
+    dns:
+      - 172.30.0.53
     volumes:
       - gophish-data:/opt/gophish/data
+    networks:
+      training-network:
+        ipv4_address: 172.30.0.20
     restart: unless-stopped
 
   mailpit:
     image: axllent/mailpit
     ports:
       - "127.0.0.1:8025:8025"
+    networks:
+      training-network:
+        ipv4_address: 172.30.0.30
+        aliases:
+          - mailpit.training.test
+    restart: unless-stopped
+
+  # Local authoritative DNS server for the isolated training.test domain.
+  # It is deliberately published on 1053, so it cannot replace the VM DNS
+  # resolver or expose the test domain outside this host.
+  coredns:
+    image: coredns/coredns:latest
+    command: -conf /etc/coredns/Corefile
+    ports:
+      - "127.0.0.1:1053:53/udp"
+      - "127.0.0.1:1053:53/tcp"
+    volumes:
+      - ./docker/coredns/Corefile:/etc/coredns/Corefile:ro
+      - ./docker/coredns/db.training.test:/etc/coredns/db.training.test:ro
+      - ./docker/coredns/hosts:/etc/coredns/hosts:ro
+    networks:
+      training-network:
+        ipv4_address: 172.30.0.53
+    restart: unless-stopped
+
+  # SMTP and IMAPS service for local reporting tests. It is reachable from
+  # Gophish as mail.training.test and from the VM through loopback ports only.
+  mailserver:
+    image: ghcr.io/docker-mailserver/docker-mailserver:latest
+    hostname: mail
+    domainname: training.test
+    environment:
+      OVERRIDE_HOSTNAME: mail.training.test
+      ENABLE_IMAP: "1"
+      SSL_TYPE: self-signed
+      ENABLE_OPENDKIM: "1"
+      ENABLE_OPENDMARC: "1"
+      ENABLE_POLICYD_SPF: "1"
+      ENABLE_CLAMAV: "0"
+      ENABLE_FAIL2BAN: "0"
+      ENABLE_SPAMASSASSIN: "0"
+    ports:
+      - "127.0.0.1:2525:25"
+      - "127.0.0.1:2587:587"
+      - "127.0.0.1:1993:993"
+    dns:
+      - 172.30.0.53
+    volumes:
+      - mail-data:/var/mail
+      - mail-state:/var/mail-state
+      - mail-logs:/var/log/mail
+      - ./docker/mailserver/config:/tmp/docker-mailserver
+      - /etc/localtime:/etc/localtime:ro
+    networks:
+      training-network:
+        ipv4_address: 172.30.0.10
+        aliases:
+          - mail.training.test
     restart: unless-stopped
 
 volumes:
   gophish-data:
+  mail-data:
+  mail-state:
+  mail-logs:
+
+networks:
+  training-network:
+    name: gophish-training-network
+    ipam:
+      config:
+        - subnet: 172.30.0.0/24

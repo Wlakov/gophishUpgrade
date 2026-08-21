@@ -1,0 +1,26 @@
+$ORIGIN training.test.
+$TTL 300
+
+@   IN  SOA ns.training.test. hostmaster.training.test. (
+        2026082002 ; serial
+        3600       ; refresh
+        600        ; retry
+        604800     ; expire
+        300        ; negative cache TTL
+)
+
+    IN  NS  ns.training.test.
+ns  IN  A   172.30.0.53
+
+; Local mail exchange for reporting messages.
+@       IN  MX  10 mail.training.test.
+mail    IN  A       172.30.0.10
+mailpit IN  A       172.30.0.30
+
+; Mail-authentication records for the isolated training domain.
+@       IN  TXT "v=spf1 mx -all"
+_dmarc IN  TXT "v=DMARC1; p=none; adkim=r; aspf=r; pct=100"
+
+mail._domainkey IN TXT ( "v=DKIM1; h=sha256; k=rsa; "
+                        "p=MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAzc3kEBmAFy5Rhiwen+pVVQHzoYmQZqGF6KErrsHzqSvvHQaGkMjXaXB7xfVJJYyEqtwMCpxC3ZXJFarDnXmoyO6LUGNgFlLbjcLEXq19n2qz1oRboyvH3j3MCSGuWm7xp6B7hWBPW2LEGq1sJTrb6bnR5YyPvBUjcALB3Ohn6H22iBG/2fsF7Ca7RQO0w0NtOBUAk0nsHxeR4/"
+                        "zjfiVPA2dsrJrtGPpSDjsPWnDQLzXjqVSZ7A0m9pHQ+aM9DLTi5EgBOKC5lOCGI4xpLlAXrRaSRW6e2+75WjFMcHSIPmNElZrNiY+Sp3rBpaovZgCv4veJ1Y5RT8dA9sZ9IMBBqQIDAQAB" )

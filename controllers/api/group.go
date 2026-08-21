@@ -6,7 +6,6 @@ import (
 	"strconv"
 	"time"
 
-	ctx "github.com/gophish/gophish/context"
 	log "github.com/gophish/gophish/logger"
 	"github.com/gophish/gophish/models"
 	"github.com/gorilla/mux"
@@ -16,9 +15,10 @@ import (
 // Groups returns a list of groups if requested via GET.
 // If requested via POST, APIGroups creates a new group and returns a reference to it.
 func (as *Server) Groups(w http.ResponseWriter, r *http.Request) {
+	uid := workspaceOwnerID(r)
 	switch {
 	case r.Method == "GET":
-		gs, err := models.GetGroups(ctx.Get(r, "user_id").(int64))
+		gs, err := models.GetGroups(uid)
 		if err != nil {
 			JSONResponse(w, models.Response{Success: false, Message: "No groups found"}, http.StatusNotFound)
 			return
@@ -33,13 +33,13 @@ func (as *Server) Groups(w http.ResponseWriter, r *http.Request) {
 			JSONResponse(w, models.Response{Success: false, Message: "Invalid JSON structure"}, http.StatusBadRequest)
 			return
 		}
-		_, err = models.GetGroupByName(g.Name, ctx.Get(r, "user_id").(int64))
+		_, err = models.GetGroupByName(g.Name, uid)
 		if err != gorm.ErrRecordNotFound {
 			JSONResponse(w, models.Response{Success: false, Message: "Group name already in use"}, http.StatusConflict)
 			return
 		}
 		g.ModifiedDate = time.Now().UTC()
-		g.UserId = ctx.Get(r, "user_id").(int64)
+		g.UserId = uid
 		err = models.PostGroup(&g)
 		if err != nil {
 			JSONResponse(w, models.Response{Success: false, Message: err.Error()}, http.StatusBadRequest)
@@ -51,9 +51,10 @@ func (as *Server) Groups(w http.ResponseWriter, r *http.Request) {
 
 // GroupsSummary returns a summary of the groups owned by the current user.
 func (as *Server) GroupsSummary(w http.ResponseWriter, r *http.Request) {
+	uid := workspaceOwnerID(r)
 	switch {
 	case r.Method == "GET":
-		gs, err := models.GetGroupSummaries(ctx.Get(r, "user_id").(int64))
+		gs, err := models.GetGroupSummaries(uid)
 		if err != nil {
 			log.Error(err)
 			JSONResponse(w, models.Response{Success: false, Message: err.Error()}, http.StatusInternalServerError)
@@ -68,7 +69,8 @@ func (as *Server) GroupsSummary(w http.ResponseWriter, r *http.Request) {
 func (as *Server) Group(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id, _ := strconv.ParseInt(vars["id"], 0, 64)
-	g, err := models.GetGroup(id, ctx.Get(r, "user_id").(int64))
+	uid := workspaceOwnerID(r)
+	g, err := models.GetGroup(id, uid)
 	if err != nil {
 		JSONResponse(w, models.Response{Success: false, Message: "Group not found"}, http.StatusNotFound)
 		return
@@ -97,7 +99,7 @@ func (as *Server) Group(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		g.ModifiedDate = time.Now().UTC()
-		g.UserId = ctx.Get(r, "user_id").(int64)
+		g.UserId = uid
 		err = models.PutGroup(&g)
 		if err != nil {
 			JSONResponse(w, models.Response{Success: false, Message: err.Error()}, http.StatusBadRequest)
@@ -109,11 +111,12 @@ func (as *Server) Group(w http.ResponseWriter, r *http.Request) {
 
 // GroupSummary returns a summary of the groups owned by the current user.
 func (as *Server) GroupSummary(w http.ResponseWriter, r *http.Request) {
+	uid := workspaceOwnerID(r)
 	switch {
 	case r.Method == "GET":
 		vars := mux.Vars(r)
 		id, _ := strconv.ParseInt(vars["id"], 0, 64)
-		g, err := models.GetGroupSummary(id, ctx.Get(r, "user_id").(int64))
+		g, err := models.GetGroupSummary(id, uid)
 		if err != nil {
 			JSONResponse(w, models.Response{Success: false, Message: "Group not found"}, http.StatusNotFound)
 			return

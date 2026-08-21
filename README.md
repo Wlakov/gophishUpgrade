@@ -1,85 +1,137 @@
-![gophish logo](https://raw.github.com/gophish/gophish/master/static/images/gophish_purple.png)
+# Gophish Upgrade
 
-Gophish
-=======
+Проєкт призначений для проведення контрольованих навчальних кампаній з
+кібербезпеки в ізольованому середовищі. Використовуйте його лише щодо
+отримувачів, систем і поштових доменів, для яких маєте належний дозвіл.
 
-![Build Status](https://github.com/gophish/gophish/workflows/CI/badge.svg) [![GoDoc](https://godoc.org/github.com/gophish/gophish?status.svg)](https://godoc.org/github.com/gophish/gophish)
+## Реалізовані можливості
 
-Gophish: Open-Source Phishing Toolkit
+- Формування фішингових сценаріїв із шаблону листа, сторінки переходу та
+  профілю відправлення.
+- Використання кількох сценаріїв у межах однієї кампанії та статистика за
+  кожним із них.
+- Облік доставки, відкриттів, переходів, введення даних, помилок і повідомлень
+  про підозрілі листи (`Reported`).
+- Детальний перегляд кампаній користувачів із групами, прев’ю листів і сторінок
+  переходу, сценаріями та шкалою подій.
+- Розмежування доступу за ролями й окремі робочі простори відділів.
+- Локальне тестування поштового Reporting через Mailpit, SMTP, IMAPS і DNS.
 
-[Gophish](https://getgophish.com) is an open-source phishing toolkit designed for businesses and penetration testers. It provides the ability to quickly and easily setup and execute phishing engagements and security awareness training.
+## Ролі користувачів
 
-### Install
+| Роль | Можливості |
+| --- | --- |
+| Системний адміністратор | Керує користувачами, ролями та переглядає робочі простори всіх відділів у розділі **Users Campaigns**. |
+| Керівник кампаній | Створює, редагує, запускає та завершує кампанії свого відділу. |
+| Редактор | Працює зі спільними групами, шаблонами, сторінками, профілями відправлення та сценаріями свого керівника, але не запускає кампанії. |
+| Спостерігач | Переглядає спільні матеріали, кампанії та результати свого відділу без можливості змін. Не має доступу до **Reporting Settings**. |
 
-Installation of Gophish is dead-simple - just download and extract the zip containing the [release for your system](https://github.com/gophish/gophish/releases/), and run the binary. Gophish has binary releases for Windows, Mac, and Linux platforms.
+Редактор і спостерігач обов’язково прив’язуються до керівника кампаній. Дані
+одного відділу не відкриваються користувачам іншого відділу.
 
-### Building From Source
-**If you are building from source, please note that Gophish requires Go v1.10 or above!**
+## Запуск локального середовища
 
-To build Gophish from source, simply run ```git clone https://github.com/gophish/gophish.git``` and ```cd``` into the project source directory. Then, run ```go build```. After this, you should have a binary called ```gophish``` in the current directory.
+Потрібні Docker і Docker Compose.
 
-### Docker
-You can also use Gophish via the official Docker container [here](https://hub.docker.com/r/gophish/gophish/).
-
-### Local Docker development
-
-This fork includes a Docker Compose setup for development in a virtual machine.
-All published services are available only from the VM itself.
-
-1. Build and start the application:
-
-   ```powershell
-   docker compose up --build
-   ```
-
-2. Open the admin interface at http://localhost:3333. The phishing listener is
-   available at http://localhost:8080. Mailpit captures local
-   test emails at http://localhost:8025; use `mailpit:1025` as the SMTP host
-   in a test sending profile.
-
-Use `docker compose down` to stop the application while keeping its data.
-Do not add `-v` unless the local database should be deleted as well.
-
-### Setup
-After running the Gophish binary, open an Internet browser to https://localhost:3333 and login with the default username and password listed in the log output.
-e.g.
-```
-time="2020-07-29T01:24:08Z" level=info msg="Please login with the username admin and the password 4304d5255378177d"
+```bash
+docker compose up --build -d
 ```
 
-Releases of Gophish prior to v0.10.1 have a default username of `admin` and password of `gophish`.
+Після запуску доступні такі сервіси:
 
-### Documentation
+| Сервіс | Адреса |
+| --- | --- |
+| Адміністративний інтерфейс Gophish | http://localhost:3333 |
+| Сторінки навчальних кампаній | http://localhost:8080 |
+| Mailpit — перегляд тестових листів | http://localhost:8025 |
 
-Documentation can be found on our [site](http://getgophish.com/documentation). Find something missing? Let us know by filing an issue!
+Перевірка стану та журнали:
 
-### Issues
-
-Find a bug? Want more features? Find something missing in the documentation? Let us know! Please don't hesitate to [file an issue](https://github.com/gophish/gophish/issues/new) and we'll get right on it.
-
-### License
+```bash
+docker compose ps
+docker compose logs --tail=100 gophish
 ```
-Gophish - Open-Source Phishing Framework
+
+Зупинення середовища без видалення даних:
+
+```bash
+docker compose stop
+```
+
+## Локальне тестування Reporting
+
+У Compose налаштовано ізольований домен `training.test`, CoreDNS і поштовий
+сервер. Він призначений лише для тестування та не приймає пошту з Інтернету.
+
+Для керівника кампаній, редактора або системного адміністратора вкажіть у
+**Account Settings → Reporting Settings**:
+
+| Налаштування | Значення |
+| --- | --- |
+| Use IMAP | увімкнено |
+| IMAP Host | `mail.training.test` |
+| IMAP Port | `993` |
+| Use TLS | увімкнено |
+| Ignore Certificate Errors | увімкнено лише для локального самопідписаного сертифіката |
+| Folder | `INBOX` |
+| Polling frequency | `60` |
+
+Локальна скринька для повідомлень — `reports@training.test`. Пароль не
+зберігається в репозиторії. Додаткову тестову скриньку можна створити так:
+
+```bash
+docker compose exec mailserver setup email add user@training.test 'надійний-пароль'
+```
+
+Для ручної перевірки запустіть тестову кампанію через Mailpit, збережіть
+оригінальний лист як `.eml`, надішліть його вкладенням до
+`reports@training.test` і не відкривайте отримане повідомлення. Протягом
+інтервалу опитування в результатах кампанії має з’явитися подія
+`Email Reported` і збільшитися показник `Reported`.
+
+## API та безпека доступу
+
+API-ключ облікового запису використовується для автентифікації запитів до
+`/api/`. Спостерігач може отримувати лише дані спільного робочого простору
+свого відділу. Йому заборонені створення, редагування, видалення, запуск або
+завершення кампаній, керування користувачами, вебхуками, Reporting і
+системними розділами. Ці обмеження перевіряються на сервері, а не лише у
+вебінтерфейсі.
+
+Не передавайте API-ключі та паролі в листуванні або коді. У разі компрометації
+ключ можна замінити в налаштуваннях облікового запису.
+
+## Автоматичні тести
+
+```bash
+go test ./...
+```
+
+Тести охоплюють базову логіку, ролі, спільні простори відділів і заборонені
+API-операції для спостерігача.
+
+## Ліцензія
+
+Gophish — Open-Source Phishing Framework
 
 The MIT License (MIT)
 
 Copyright (c) 2013 - 2020 Jordan Wright
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software ("Gophish Community Edition") and associated documentation files (the "Software"), to deal
+of this software and associated documentation files (the "Software"), to deal
 in the Software without restriction, including without limitation the rights
 to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
 copies of the Software, and to permit persons to whom the Software is
 furnished to do so, subject to the following conditions:
 
-The above copyright notice and this permission notice shall be included in
-all copies or substantial portions of the Software.
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
 
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
 AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-THE SOFTWARE.
-```
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.

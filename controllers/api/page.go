@@ -6,7 +6,6 @@ import (
 	"strconv"
 	"time"
 
-	ctx "github.com/gophish/gophish/context"
 	log "github.com/gophish/gophish/logger"
 	"github.com/gophish/gophish/models"
 	"github.com/gorilla/mux"
@@ -15,9 +14,10 @@ import (
 
 // Pages handles requests for the /api/pages/ endpoint
 func (as *Server) Pages(w http.ResponseWriter, r *http.Request) {
+	uid := workspaceOwnerID(r)
 	switch {
 	case r.Method == "GET":
-		ps, err := models.GetPages(ctx.Get(r, "user_id").(int64))
+		ps, err := models.GetPages(uid)
 		if err != nil {
 			log.Error(err)
 		}
@@ -32,14 +32,14 @@ func (as *Server) Pages(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		// Check to make sure the name is unique
-		_, err = models.GetPageByName(p.Name, ctx.Get(r, "user_id").(int64))
+		_, err = models.GetPageByName(p.Name, uid)
 		if err != gorm.ErrRecordNotFound {
 			JSONResponse(w, models.Response{Success: false, Message: "Page name already in use"}, http.StatusConflict)
 			log.Error(err)
 			return
 		}
 		p.ModifiedDate = time.Now().UTC()
-		p.UserId = ctx.Get(r, "user_id").(int64)
+		p.UserId = uid
 		err = models.PostPage(&p)
 		if err != nil {
 			JSONResponse(w, models.Response{Success: false, Message: err.Error()}, http.StatusInternalServerError)
@@ -54,7 +54,8 @@ func (as *Server) Pages(w http.ResponseWriter, r *http.Request) {
 func (as *Server) Page(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id, _ := strconv.ParseInt(vars["id"], 0, 64)
-	p, err := models.GetPage(id, ctx.Get(r, "user_id").(int64))
+	uid := workspaceOwnerID(r)
+	p, err := models.GetPage(id, uid)
 	if err != nil {
 		JSONResponse(w, models.Response{Success: false, Message: "Page not found"}, http.StatusNotFound)
 		return
@@ -63,7 +64,7 @@ func (as *Server) Page(w http.ResponseWriter, r *http.Request) {
 	case r.Method == "GET":
 		JSONResponse(w, p, http.StatusOK)
 	case r.Method == "DELETE":
-		err = models.DeletePage(id, ctx.Get(r, "user_id").(int64))
+		err = models.DeletePage(id, uid)
 		if err != nil {
 			JSONResponse(w, models.Response{Success: false, Message: "Error deleting page"}, http.StatusInternalServerError)
 			return
@@ -80,7 +81,7 @@ func (as *Server) Page(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		p.ModifiedDate = time.Now().UTC()
-		p.UserId = ctx.Get(r, "user_id").(int64)
+		p.UserId = uid
 		err = models.PutPage(&p)
 		if err != nil {
 			JSONResponse(w, models.Response{Success: false, Message: "Error updating page: " + err.Error()}, http.StatusInternalServerError)

@@ -187,9 +187,11 @@ $(document).ready(function () {
 
       }); //end testclick
 
-    $("#reporttab").click(function() {
-        loadIMAPSettings()
-    })
+    if (window.canManageReporting) {
+        $("#reporttab").click(function() {
+            loadIMAPSettings()
+        })
+    }
 
     $("#advanced").click(function() {
         $("#advancedarea").toggle();
@@ -234,5 +236,7 @@ $(document).ready(function () {
         localStorage.setItem('gophish.use_map', JSON.stringify(this.checked))
     })
 
-    loadIMAPSettings()
+    if (window.canManageReporting) {
+        loadIMAPSettings()
+    }
 })

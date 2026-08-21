@@ -57,6 +57,18 @@ func GetDepartmentMembers(managerID int64) ([]User, error) {
 	return users, err
 }
 
+// WorkspaceOwnerID returns the account that owns the department workspace a
+// user works in. Campaign managers own their own workspace; editors and
+// viewers work with the shared workspace of their assigned campaign manager.
+// System administrators keep their personal workspace separate and use the
+// administrator views when they need to inspect other departments.
+func (u User) WorkspaceOwnerID() int64 {
+	if (u.Role.Slug == RoleEditor || u.Role.Slug == RoleViewer) && u.ManagerID != nil {
+		return *u.ManagerID
+	}
+	return u.Id
+}
+
 // ValidateManagerAssignment verifies the department relationship required by
 // the selected role.
 func ValidateManagerAssignment(roleSlug string, managerID *int64, userID int64) error {
