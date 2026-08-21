@@ -1754,16 +1754,64 @@ p {
     box-shadow: 0 2px 10px rgba(26, 42, 54, .16);
 }
 
-.navbar-logo {
-    margin: 8px 2px 0 4px;
+.navbar-identity {
+    align-items: center;
+    display: flex;
+    height: 50px;
+    margin: 0 !important;
+    padding-left: 8px;
+}
+
+.navbar-brand-mark {
+    align-items: center;
+    background: rgba(255, 255, 255, .12);
+    border: 1px solid rgba(255, 255, 255, .18);
+    border-radius: 9px;
+    display: flex;
+    flex: 0 0 34px;
+    height: 34px;
+    justify-content: center;
+    margin: 0 !important;
+    transition: background-color .18s ease;
+    width: 34px;
+}
+
+.navbar-brand-mark:hover,
+.navbar-brand-mark:focus {
+    background: rgba(255, 255, 255, .2);
+}
+
+.navbar-identity .navbar-logo {
+    float: none;
+    height: 27px;
+    margin: 0;
+    max-width: 25px;
+    object-fit: contain;
+    width: auto;
 }
 
 .navbar-inverse .navbar-brand {
+    align-items: baseline;
     color: #f4f8fb;
-    font-size: 19px;
+    display: flex;
+    float: none !important;
+    font-size: 18px;
     font-weight: 700;
+    height: auto;
     letter-spacing: -.02em;
-    padding-left: 5px;
+    line-height: 1;
+    margin: 0 0 0 10px !important;
+    padding: 0 !important;
+    white-space: nowrap;
+}
+
+.navbar-brand-edition {
+    color: #9fc4dc;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: .08em;
+    margin-left: 7px;
+    text-transform: uppercase;
 }
 
 .navbar-inverse .navbar-brand:hover,
@@ -1906,4 +1954,202 @@ p {
     .app-sidebar-nav > li > a {
         min-height: 38px;
     }
+}
+
+/* Content typography */
+.main,
+.main .form-control,
+.main .btn,
+.main .table,
+.main .panel,
+.main .modal-content,
+.main .nav-tabs {
+    font-family: "Inter", "Segoe UI", Roboto, Arial, sans-serif;
+}
+
+.main {
+    color: #34495e;
+}
+
+.main .page-header {
+    border-bottom-color: #dfe8ee;
+    font-size: 27px;
+    margin-top: 22px;
+    padding-bottom: 13px;
+}
+
+.main .nav-tabs {
+    border-bottom-color: #d7e2e9;
+}
+
+.main .nav-tabs > li > a {
+    border: 0;
+    border-bottom: 3px solid transparent;
+    border-radius: 5px 5px 0 0;
+    color: #607789;
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: .005em;
+    padding: 11px 15px 10px;
+}
+
+.main .nav-tabs > li > a:hover,
+.main .nav-tabs > li > a:focus {
+    background: #eef4f8;
+    border-bottom-color: #bdd5e5;
+    color: #285a7d;
+}
+
+.main .nav-tabs > li.active > a,
+.main .nav-tabs > li.active > a:hover,
+.main .nav-tabs > li.active > a:focus {
+    background: transparent;
+    border: 0;
+    border-bottom: 3px solid #337ab7;
+    color: #1f526f;
+    font-weight: 700;
+}
+
+.tab-content {
+    background: #fff;
+    border: 1px solid #d7e2e9;
+    border-top: 0;
+    border-radius: 0 0 7px 7px;
+    box-shadow: 0 2px 7px rgba(37, 61, 77, .035);
+    padding: 16px 20px 18px;
+}
+
+.tab-content > .tab-pane > :first-child {
+    margin-top: 0;
+}
+
+.tab-content .table:last-child {
+    margin-bottom: 0;
+}
+
+.modal-body .tab-content {
+    border-color: #dfe7ec;
+    box-shadow: none;
+    padding: 14px 16px;
+}
+
+.main .panel {
+    border-color: #dfe7ec;
+    border-radius: 6px;
+    box-shadow: 0 2px 7px rgba(37, 61, 77, .045);
+}
+
+.main .panel-heading {
+    background: #f8fafb;
+    border-bottom-color: #e4ebef;
+    color: #304b5e;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: .01em;
+    padding: 12px 15px;
+}
+
+.main .panel-title {
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.main .form-label,
+.main label.control-label {
+    color: #476174;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: .01em;
+}
+
+.main .form-control {
+    border-color: #cfdde6;
+    box-shadow: none;
+    color: #2e4658;
+    font-size: 13px;
+}
+
+.main .form-control:focus {
+    border-color: #6aa4c9;
+    box-shadow: 0 0 0 2px rgba(51, 122, 183, .1);
+}
+
+.main .help-block,
+.main .text-muted {
+    color: #718493;
+    font-size: 12px;
+}
+
+.main .table > thead > tr > th {
+    border-bottom-color: #ccdbe4;
+    color: #526b7c;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: .055em;
+    text-transform: uppercase;
+}
+
+.main .table > tbody > tr > td {
+    border-top-color: #e7edf1;
+    color: #405867;
+    font-size: 13px;
+    vertical-align: middle;
+}
+
+.main .btn {
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: .01em;
+    line-height: 1.35;
+    min-height: 34px;
+    padding: 7px 12px;
+}
+
+.main .btn.btn-sm,
+.main .btn.btn-xs {
+    min-height: 0;
+}
+
+.main .button-row {
+    align-items: center;
+    display: inline-flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.main .button-row .btn {
+    margin: 0;
+}
+
+.main .modal-footer .btn + .btn {
+    margin-left: 8px;
+}
+
+.main .pull-right > .btn + .btn,
+.main .pull-right > span + .btn,
+.main .pull-right > .btn + span,
+.main .pull-right > span + span {
+    margin-left: 6px;
+}
+
+.main .pull-right > span > .btn {
+    margin: 0;
+}
+
+.main .btn-group > .btn {
+    min-height: 34px;
+}
+
+.main .btn-group > .btn + .btn {
+    margin-left: -1px;
+}
+
+.modal-content {
+    font-family: "Inter", "Segoe UI", Roboto, Arial, sans-serif;
+}
+
+.modal-title {
+    color: #304b5e;
+    font-size: 17px;
+    font-weight: 700;
 }
