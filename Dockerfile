@@ -1,24 +1,26 @@
-# Minify client side assets (JavaScript)
-FROM node:latest AS build-js
-
-RUN npm install gulp gulp-cli -g
+# Minify client side assets (JavaScript). A fixed image and npm lock-file keep
+# builds repeatable while still receiving the selected runtime security fixes.
+FROM node:22.22.1-bookworm-slim AS build-js
 
 WORKDIR /build
+COPY package.json package-lock.json ./
+RUN npm ci --include=dev
 COPY . .
-RUN npm install --only=dev
-RUN gulp
+RUN ./node_modules/.bin/gulp
 
 
-# Build Golang binary
-FROM golang:1.15.2 AS build-golang
+# Build Golang binary with a supported Go toolchain.
+FROM golang:1.26.6-bookworm AS build-golang
 
 WORKDIR /go/src/github.com/gophish/gophish
+COPY go.mod go.sum ./
+RUN go mod download
 COPY . .
-RUN go get -v && go build -v
+RUN go build -trimpath -buildvcs=false -o gophish .
 
 
 # Runtime container
-FROM debian:stable-slim
+FROM debian:bookworm-slim
 
 RUN useradd -m -d /opt/gophish -s /bin/bash app
 

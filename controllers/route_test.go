@@ -3,6 +3,8 @@ package controllers
 import (
 	"fmt"
 	"net/http"
+	"net/http/cookiejar"
+	"net/http/httptest"
 	"net/url"
 	"strings"
 	"testing"
@@ -10,8 +12,40 @@ import (
 	"github.com/PuerkitoBio/goquery"
 )
 
+func TestTrustedOriginProtection(t *testing.T) {
+	protection := trustedOriginProtection([]string{"training.test", "http://insecure.test", "https://invalid.test/path"})
+
+	trusted := httptest.NewRequest(http.MethodPost, "https://admin.training.test/login", nil)
+	trusted.Host = "admin.training.test"
+	trusted.Header.Set("Origin", "https://training.test")
+	if err := protection.Check(trusted); err != nil {
+		t.Fatalf("trusted HTTPS origin was rejected: %v", err)
+	}
+
+	insecure := httptest.NewRequest(http.MethodPost, "https://admin.training.test/login", nil)
+	insecure.Host = "admin.training.test"
+	insecure.Header.Set("Origin", "http://insecure.test")
+	if err := protection.Check(insecure); err == nil {
+		t.Fatal("insecure trusted origin was allowed")
+	}
+}
+
 func attemptLogin(t *testing.T, ctx *testContext, client *http.Client, username, password, optionalPath string) *http.Response {
-	resp, err := http.Get(fmt.Sprintf("%s/login", ctx.adminServer.URL))
+	if client == nil {
+		jar, err := cookiejar.New(nil)
+		if err != nil {
+			t.Fatalf("error creating cookie jar: %v", err)
+		}
+		client = &http.Client{Jar: jar}
+	} else if client.Jar == nil {
+		jar, err := cookiejar.New(nil)
+		if err != nil {
+			t.Fatalf("error creating cookie jar: %v", err)
+		}
+		client.Jar = jar
+	}
+
+	resp, err := client.Get(fmt.Sprintf("%s/login", ctx.adminServer.URL))
 	if err != nil {
 		t.Fatalf("error requesting the /login endpoint: %v", err)
 	}
@@ -30,10 +64,6 @@ func attemptLogin(t *testing.T, ctx *testContext, client *http.Client, username,
 	if !ok {
 		t.Fatal("unable to find csrf_token value in login response")
 	}
-	if client == nil {
-		client = &http.Client{}
-	}
-
 	req, err := http.NewRequest("POST", fmt.Sprintf("%s/login%s", ctx.adminServer.URL, optionalPath), strings.NewReader(url.Values{
 		"username":   {username},
 		"password":   {password},
@@ -43,7 +73,6 @@ func attemptLogin(t *testing.T, ctx *testContext, client *http.Client, username,
 		t.Fatalf("error creating new /login request: %v", err)
 	}
 
-	req.Header.Set("Cookie", resp.Header.Get("Set-Cookie"))
 	req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
 
 	resp, err = client.Do(req)

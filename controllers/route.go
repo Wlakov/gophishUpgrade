@@ -157,10 +157,17 @@ func (as *AdminServer) registerRoutes() {
 	}
 	csrfHandler := csrf.Protect(csrfKey,
 		csrf.FieldName("csrf_token"),
-		csrf.Secure(as.config.UseTLS),
-		csrf.TrustedOrigins(as.config.TrustedOrigins))
-	adminHandler := csrfHandler(router)
-	adminHandler = mid.Use(adminHandler.ServeHTTP, mid.CSRFExceptions, mid.GetContext, mid.ApplySecurityHeaders)
+		csrf.Secure(as.config.UseTLS))
+
+	// CrossOriginProtection validates browser-originated state-changing
+	// requests before the CSRF middleware. It replaces gorilla/csrf's
+	// TrustedOrigins option, which accepts HTTP origins as trusted as well.
+	adminHandler := trustedOriginProtection(as.config.TrustedOrigins).Handler(csrfHandler(router))
+	if as.config.UseTLS {
+		adminHandler = mid.Use(adminHandler.ServeHTTP, mid.CSRFExceptions, mid.GetContext, mid.ApplySecurityHeaders)
+	} else {
+		adminHandler = mid.Use(adminHandler.ServeHTTP, mid.MarkPlaintextHTTP, mid.CSRFExceptions, mid.GetContext, mid.ApplySecurityHeaders)
+	}
 
 	// Setup GZIP compression
 	gzipWrapper, _ := gziphandler.NewGzipLevelHandler(gzip.BestCompression)
@@ -173,6 +180,31 @@ func (as *AdminServer) registerRoutes() {
 	// Setup logging
 	adminHandler = handlers.CombinedLoggingHandler(log.Writer(), adminHandler)
 	as.server.Handler = adminHandler
+}
+
+// trustedOriginProtection configures explicit, HTTPS-only origins for admin
+// interfaces that are intentionally hosted on a different origin. Legacy
+// host-only entries are treated as HTTPS origins for compatibility.
+func trustedOriginProtection(origins []string) *http.CrossOriginProtection {
+	protection := http.NewCrossOriginProtection()
+	for _, origin := range origins {
+		origin = strings.TrimSpace(origin)
+		if origin == "" {
+			continue
+		}
+		if !strings.Contains(origin, "://") {
+			origin = "https://" + origin
+		}
+		parsed, err := url.Parse(origin)
+		if err != nil || parsed.Scheme != "https" || parsed.Host == "" || parsed.Path != "" || parsed.RawQuery != "" || parsed.Fragment != "" {
+			log.Errorf("Ignoring insecure or invalid trusted origin %q; use an HTTPS origin without a path", origin)
+			continue
+		}
+		if err := protection.AddTrustedOrigin(origin); err != nil {
+			log.Errorf("Ignoring invalid trusted origin %q: %v", origin, err)
+		}
+	}
+	return protection
 }
 
 type templateParams struct {

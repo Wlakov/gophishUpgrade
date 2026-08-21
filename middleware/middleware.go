@@ -30,6 +30,15 @@ func CSRFExceptions(handler http.Handler) http.HandlerFunc {
 	}
 }
 
+// MarkPlaintextHTTP tells gorilla/csrf that the request is intentionally
+// served over HTTP. This keeps token validation enabled while avoiding HTTPS
+// referer checks that cannot be satisfied by a plaintext local deployment.
+func MarkPlaintextHTTP(handler http.Handler) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		handler.ServeHTTP(w, csrf.PlaintextHTTPRequest(r))
+	}
+}
+
 // Use allows us to stack middleware to process the request
 // Example taken from https://github.com/gorilla/mux/pull/36#issuecomment-25849172
 func Use(handler http.HandlerFunc, mid ...func(http.Handler) http.HandlerFunc) http.HandlerFunc {
