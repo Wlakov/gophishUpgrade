@@ -153,7 +153,7 @@ function edit(idx) {
     })
     var profile = {}
     if (idx != -1) {
-        $("#profileModalLabel").text("Edit Sending Profile")
+        $("#profileModalLabel").text("Змінити профіль відправлення")
         profile = profiles[idx]
         $("#name").val(profile.name)
         $("#interface_type").val(profile.interface_type)
@@ -166,7 +166,7 @@ function edit(idx) {
             addCustomHeader(record.key, record.value)
         });
     } else {
-        $("#profileModalLabel").text("New Sending Profile")
+        $("#profileModalLabel").text("Новий профіль відправлення")
     }
 }
 
@@ -176,7 +176,7 @@ function copy(idx) {
     })
     var profile = {}
     profile = profiles[idx]
-    $("#name").val("Copy of " + profile.name)
+        $("#name").val("Копія — " + profile.name)
     $("#interface_type").val(profile.interface_type)
     $("#from").val(profile.from_address)
     $("#host").val(profile.host)
@@ -228,7 +228,7 @@ function load() {
         })
         .error(function () {
             $("#loading").hide()
-            errorFlash("Error fetching profiles")
+            errorFlash("Не вдалося отримати список профілів")
         })
 }
 

@@ -64,10 +64,10 @@ function edit(id) {
         save(id)
     })
     if (id == -1) {
-        $("#groupModalLabel").text("New Group");
+        $("#groupModalLabel").text("Нова група");
         var group = {}
     } else {
-        $("#groupModalLabel").text("Edit Group");
+        $("#groupModalLabel").text("Змінити групу");
         api.groupId.get(id)
             .success(function (group) {
                 $("#name").val(group.name)
@@ -84,7 +84,7 @@ function edit(id) {
                 targets.DataTable().rows.add(targetRows).draw()
             })
             .error(function () {
-                errorFlash("Error fetching group")
+        errorFlash("Не вдалося отримати дані групи")
             })
     }
     // Handle file uploads
@@ -255,7 +255,7 @@ function load() {
             }
         })
         .error(function () {
-            errorFlash("Error fetching groups")
+        errorFlash("Не вдалося отримати список груп")
         })
 }
 

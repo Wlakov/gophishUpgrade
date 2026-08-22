@@ -4,7 +4,7 @@ let openedCampaignMaterials = { email: [], landing: [] }
 
 const campaignItems = (items, render, emptyMessage) => {
     if (!items || items.length === 0) {
-        return "<p class='text-muted'>" + (emptyMessage || "No items.") + "</p>"
+        return "<p class='text-muted'>" + (emptyMessage || "Немає даних.") + "</p>"
     }
     return "<ul class='list-group'>" + $.map(items, item =>
         "<li class='list-group-item'>" + render(item) + "</li>"
@@ -17,10 +17,10 @@ const campaignResource = (title, content) => "<div class='panel panel-default'>"
 
 const formatDate = (value) => {
     if (!value || value === "0001-01-01T00:00:00Z") {
-        return "Not set"
+        return "Не вказано"
     }
     const date = new Date(value)
-    return isNaN(date.getTime()) ? "Not set" : date.toLocaleString()
+    return isNaN(date.getTime()) ? "Не вказано" : date.toLocaleString()
 }
 
 const campaignStats = (campaign) => {
@@ -69,7 +69,7 @@ const resultStatusClass = (result) => {
 const previewFrame = (kind, title) =>
     "<div class='user-campaign-preview-wrap'><iframe class='user-campaign-preview' title='" + escapeHtml(title) +
     "' data-preview='" + kind + "' sandbox referrerpolicy='no-referrer'></iframe></div>" +
-    "<p class='text-muted user-campaign-preview-note'><i class='fa fa-shield'></i> Preview is isolated; links, forms, and scripts are disabled.</p>"
+    "<p class='text-muted user-campaign-preview-note'><i class='fa fa-shield'></i> Попередній перегляд ізольовано; посилання, форми та скрипти вимкнено.</p>"
 
 const previewPanel = (title, name, metadata, kind) =>
     "<div class='user-campaign-material'><div class='user-campaign-material-heading'><div><i class='fa fa-eye'></i> <strong>" +
@@ -87,16 +87,16 @@ const campaignMaterialList = (campaign, kind) => {
         }
         materials.push({ key: key, resource: item, sources: [source] })
     }
-    addMaterial(kind === "email" ? campaign.template : campaign.page, "Campaign default")
+    addMaterial(kind === "email" ? campaign.template : campaign.page, "Основний матеріал кампанії")
     ;(campaign.scenarios || []).forEach(scenario =>
-        addMaterial(kind === "email" ? scenario.template : scenario.page, scenario.name || "Unnamed scenario"))
+        addMaterial(kind === "email" ? scenario.template : scenario.page, scenario.name || "Сценарій без назви"))
     return materials
 }
 
 const campaignMaterialSelector = (kind, materials) => "<div class='user-campaign-material-browser'><div class='list-group user-campaign-material-list'>" +
     materials.map((material, index) => "<button type='button' class='list-group-item user-campaign-material-selector" + (index === 0 ? " active" : "") +
         "' data-material-kind='" + kind + "' data-material-index='" + index + "'><i class='fa fa-" + (kind === "email" ? "envelope" : "file-text-o") +
-        "'></i><span><strong>" + escapeHtml(material.resource.name || "[Deleted]") + "</strong><small>Used by: " + escapeHtml(material.sources.join(", ")) + "</small></span></button>").join("") +
+        "'></i><span><strong>" + escapeHtml(material.resource.name || "[Видалено]") + "</strong><small>Використовується: " + escapeHtml(material.sources.join(", ")) + "</small></span></button>").join("") +
     "</div><div id='userCampaign" + (kind === "email" ? "Email" : "Landing") + "Preview' class='user-campaign-selected-preview'></div></div>"
 
 const campaignMaterialPanel = (kind, title, campaign) => campaignMaterialSelector(kind, campaignMaterialList(campaign, kind))
@@ -104,9 +104,9 @@ const campaignMaterialPanel = (kind, title, campaign) => campaignMaterialSelecto
 const groupList = (campaign) => {
     const groups = campaignItems(campaign.groups, group =>
         "<strong>" + escapeHtml(group.name) + "</strong> <span class='text-muted pull-right'>" +
-        ((group.targets || []).length) + " recipient(s)</span>", "No group association is available for this campaign.")
+        ((group.targets || []).length) + " отримувачів</span>", "Для цієї кампанії групи не прив’язані.")
     const legacyNote = campaign.groups_inferred
-        ? "<div class='alert alert-info user-campaign-inline-alert'><i class='fa fa-info-circle'></i> Group links were not stored when this campaign was created. The groups below were matched to saved recipients.</div>"
+        ? "<div class='alert alert-info user-campaign-inline-alert'><i class='fa fa-info-circle'></i> Зв’язки з групами не збереглися під час створення кампанії. Нижче показано групи, визначені за отримувачами.</div>"
         : ""
     return legacyNote + groups
 }
@@ -114,7 +114,7 @@ const groupList = (campaign) => {
 const scenarioList = (campaign) => {
     const scenarios = campaign.scenarios || []
     if (scenarios.length === 0) {
-        return "<div class='user-campaign-empty-state'><i class='fa fa-sitemap'></i><strong>No dedicated scenarios</strong><p>This campaign uses its main email template, landing page, and sending profile for all recipients.</p></div>"
+        return "<div class='user-campaign-empty-state'><i class='fa fa-sitemap'></i><strong>Окремих сценаріїв немає</strong><p>Для всіх отримувачів використовуються основні шаблон листа, цільова сторінка та профіль відправлення.</p></div>"
     }
     return scenarios.map(scenario => {
         const recipients = (campaign.results || []).filter(result => result.scenario_id === scenario.id)
@@ -123,14 +123,14 @@ const scenarioList = (campaign) => {
         const page = scenario.page || {}
         const smtp = scenario.smtp || {}
         return "<article class='user-campaign-scenario'>" +
-            "<div class='user-campaign-scenario-heading'><div><strong>" + escapeHtml(scenario.name) + "</strong><span>" + recipients.length + " assigned recipient(s)</span></div>" +
-            "<span class='label label-" + (stats.submitted ? "danger" : "default") + "'>" + percentage(stats.clicked + stats.submitted, stats.total) + " risk actions</span></div>" +
+            "<div class='user-campaign-scenario-heading'><div><strong>" + escapeHtml(scenario.name) + "</strong><span>" + recipients.length + " призначених отримувачів</span></div>" +
+            "<span class='label label-" + (stats.submitted ? "danger" : "default") + "'>" + percentage(stats.clicked + stats.submitted, stats.total) + " ризикових дій</span></div>" +
             "<div class='row user-campaign-scenario-components'>" +
-            "<div class='col-sm-4'><i class='fa fa-envelope'></i><small>Email template</small><strong>" + escapeHtml(template.name || "[Deleted]") + "</strong></div>" +
-            "<div class='col-sm-4'><i class='fa fa-file-text-o'></i><small>Landing page</small><strong>" + escapeHtml(page.name || "[Deleted]") + "</strong></div>" +
-            "<div class='col-sm-4'><i class='fa fa-paper-plane'></i><small>Sending profile</small><strong>" + escapeHtml(smtp.name || "[Deleted]") + "</strong></div>" +
+            "<div class='col-sm-4'><i class='fa fa-envelope'></i><small>Шаблон листа</small><strong>" + escapeHtml(template.name || "[Видалено]") + "</strong></div>" +
+            "<div class='col-sm-4'><i class='fa fa-file-text-o'></i><small>Цільова сторінка</small><strong>" + escapeHtml(page.name || "[Видалено]") + "</strong></div>" +
+            "<div class='col-sm-4'><i class='fa fa-paper-plane'></i><small>Профіль відправлення</small><strong>" + escapeHtml(smtp.name || "[Видалено]") + "</strong></div>" +
             "</div>" +
-            "<div class='user-campaign-scenario-stats'><span><b>" + stats.opened + "</b> opened</span><span><b>" + stats.clicked + "</b> clicked</span><span><b>" + stats.submitted + "</b> submitted</span><span><b>" + stats.reported + "</b> reported</span></div>" +
+            "<div class='user-campaign-scenario-stats'><span><b>" + stats.opened + "</b> відкрито</span><span><b>" + stats.clicked + "</b> переходів</span><span><b>" + stats.submitted + "</b> введено дані</span><span><b>" + stats.reported + "</b> повідомлень</span></div>" +
             "</article>"
     }).join("")
 }
@@ -152,17 +152,17 @@ const eventDetailsSummary = (event) => {
     try {
         const details = JSON.parse(event.details)
         if (details.error) return "<span class='user-campaign-event-detail'><i class='fa fa-exclamation-circle'></i> " + escapeHtml(details.error) + "</span>"
-        if (details.browser) return "<span class='user-campaign-event-detail'><i class='fa fa-desktop'></i> Browser information recorded</span>"
-        if (details.payload) return "<span class='user-campaign-event-detail'><i class='fa fa-check-circle'></i> Form interaction recorded</span>"
+        if (details.browser) return "<span class='user-campaign-event-detail'><i class='fa fa-desktop'></i> Дані браузера збережено</span>"
+        if (details.payload) return "<span class='user-campaign-event-detail'><i class='fa fa-check-circle'></i> Взаємодію з формою зафіксовано</span>"
     } catch (e) {
-        return "<span class='user-campaign-event-detail'><i class='fa fa-info-circle'></i> Additional event data recorded</span>"
+        return "<span class='user-campaign-event-detail'><i class='fa fa-info-circle'></i> Додаткові дані події збережено</span>"
     }
     return ""
 }
 
 const eventTimeline = (events) => {
     if (!events || events.length === 0) {
-        return "<div class='user-campaign-empty-state'><i class='fa fa-clock-o'></i><strong>No events recorded yet</strong><p>Events will appear here as recipients interact with the campaign.</p></div>"
+        return "<div class='user-campaign-empty-state'><i class='fa fa-clock-o'></i><strong>Подій ще немає</strong><p>Події з’являться, коли отримувачі взаємодіятимуть із кампанією.</p></div>"
     }
     return "<div class='user-campaign-event-timeline'>" + events.slice().sort((a, b) => new Date(b.time) - new Date(a.time)).map(event => {
         const presentation = eventPresentation(event.message)
@@ -173,10 +173,10 @@ const eventTimeline = (events) => {
 }
 
 const recipientList = (results) => {
-    if (!results || results.length === 0) return "<p class='text-muted'>No recipients were recorded.</p>"
-    return "<div class='table-responsive'><table class='table table-condensed user-campaign-results-table'><thead><tr><th>Recipient</th><th>Status</th><th>Last activity</th></tr></thead><tbody>" +
+    if (!results || results.length === 0) return "<p class='text-muted'>Отримувачів не зафіксовано.</p>"
+    return "<div class='table-responsive'><table class='table table-condensed user-campaign-results-table'><thead><tr><th>Отримувач</th><th>Стан</th><th>Остання активність</th></tr></thead><tbody>" +
         results.map(result => "<tr><td>" + escapeHtml(result.email) + "</td><td><span class='label label-" + resultStatusClass(result) + "'>" +
-            escapeHtml(result.reported ? "Reported" : result.status) + "</span></td><td>" + formatDate(result.modified_date) + "</td></tr>").join("") + "</tbody></table></div>"
+            escapeHtml(result.reported ? "Повідомлено" : result.status) + "</span></td><td>" + formatDate(result.modified_date) + "</td></tr>").join("") + "</tbody></table></div>"
 }
 
 const showMaterialPreview = (kind, index) => {
@@ -185,15 +185,15 @@ const showMaterialPreview = (kind, index) => {
     const resource = material.resource
     const isEmail = kind === "email"
     const metadata = isEmail
-        ? "<span>Subject: " + escapeHtml(resource.subject || "Not set") + "</span>" +
-            (resource.envelope_sender ? "<span>Sender: " + escapeHtml(resource.envelope_sender) + "</span>" : "")
-        : "<span>Credential capture: " + (resource.capture_credentials ? "enabled" : "disabled") + "</span>" +
-            (resource.redirect_url ? "<span>Redirect configured</span>" : "")
+        ? "<span>Тема: " + escapeHtml(resource.subject || "Не вказано") + "</span>" +
+            (resource.envelope_sender ? "<span>Відправник: " + escapeHtml(resource.envelope_sender) + "</span>" : "")
+        : "<span>Збір облікових даних: " + (resource.capture_credentials ? "увімкнено" : "вимкнено") + "</span>" +
+            (resource.redirect_url ? "<span>Перенаправлення налаштовано</span>" : "")
     const selector = "#userCampaign" + (isEmail ? "Email" : "Landing") + "Preview"
-    $(selector).html(previewPanel(isEmail ? "Email preview" : "Landing page preview", resource.name, metadata, kind))
+    $(selector).html(previewPanel(isEmail ? "Перегляд листа" : "Перегляд цільової сторінки", resource.name, metadata, kind))
     const content = resource.html || (isEmail
-        ? "<main style='font-family:Arial,sans-serif;padding:24px;white-space:pre-wrap'>" + escapeHtml(resource.text || "No email content is available.") + "</main>"
-        : "<main style='font-family:Arial,sans-serif;padding:24px'>No landing page content is available.</main>")
+        ? "<main style='font-family:Arial,sans-serif;padding:24px;white-space:pre-wrap'>" + escapeHtml(resource.text || "Вміст листа відсутній.") + "</main>"
+        : "<main style='font-family:Arial,sans-serif;padding:24px'>Вміст цільової сторінки відсутній.</main>")
     const documentContent = "<!doctype html><html><head><base target='_blank'></head><body>" + content + "</body></html>"
     $(selector + " [data-preview='" + kind + "']").attr("srcdoc", documentContent)
     $(".user-campaign-material-selector[data-material-kind='" + kind + "']").removeClass("active")
@@ -210,15 +210,15 @@ const campaignDetails = (campaign) => {
         metric("Submitted", stats.submitted, percentage(stats.submitted, stats.total), "danger") +
         "</div>" +
         "<dl class='dl-horizontal user-campaign-description'><dt>Status</dt><dd><span class='label label-" + statusClass(campaign.status) + "'>" + escapeHtml(campaign.status || "Unknown") + "</span></dd>" +
-        "<dt>Created</dt><dd>" + formatDate(campaign.created_date) + "</dd><dt>Launch date</dt><dd>" + formatDate(campaign.launch_date) +
-        "</dd><dt>Campaign URL</dt><dd class='text-break'>" + escapeHtml(campaign.url || "Not set") + "</dd></dl>" +
-        campaignResource("Groups", groupList(campaign)) +
-        campaignResource("Email templates", campaignMaterialPanel("email", "Email templates", campaign)) +
-        campaignResource("Landing pages", campaignMaterialPanel("landing", "Landing pages", campaign)) +
-        campaignResource("Sending Profile", "<p><strong>" + escapeHtml(smtp.name || "[Deleted]") + "</strong> " + escapeHtml(smtp.host || "") + " / " + escapeHtml(smtp.from_address || "") + "</p>") +
-        campaignResource("Phishing scenarios", scenarioList(campaign)) +
-        campaignResource("Recipients and results", recipientList(campaign.results)) +
-        campaignResource("Event timeline", eventTimeline(campaign.timeline))
+        "<dt>Створено</dt><dd>" + formatDate(campaign.created_date) + "</dd><dt>Дата запуску</dt><dd>" + formatDate(campaign.launch_date) +
+        "</dd><dt>URL кампанії</dt><dd class='text-break'>" + escapeHtml(campaign.url || "Не вказано") + "</dd></dl>" +
+        campaignResource("Групи", groupList(campaign)) +
+        campaignResource("Шаблони листів", campaignMaterialPanel("email", "Шаблони листів", campaign)) +
+        campaignResource("Цільові сторінки", campaignMaterialPanel("landing", "Цільові сторінки", campaign)) +
+        campaignResource("Профіль відправлення", "<p><strong>" + escapeHtml(smtp.name || "[Видалено]") + "</strong> " + escapeHtml(smtp.host || "") + " / " + escapeHtml(smtp.from_address || "") + "</p>") +
+        campaignResource("Фішингові сценарії", scenarioList(campaign)) +
+        campaignResource("Отримувачі та результати", recipientList(campaign.results)) +
+        campaignResource("Хронологія подій", eventTimeline(campaign.timeline))
 }
 
 const campaignSearchText = (workspace, campaign) => {
@@ -235,16 +235,16 @@ const campaignCard = (workspace, campaign, index) => {
         "<div class='panel-body'>" +
         "<div class='row'><div class='col-sm-8'><h3 class='user-campaign-card-title'>" + escapeHtml(campaign.name) + "</h3>" +
         "<p class='text-muted user-campaign-card-meta'><i class='fa fa-user'></i> " + escapeHtml(workspace.user.username) +
-        " <span class='user-campaign-separator'>•</span> Created " + formatDate(campaign.created_date) + "</p></div>" +
+        " <span class='user-campaign-separator'>•</span> Створено " + formatDate(campaign.created_date) + "</p></div>" +
         "<div class='col-sm-4 text-right'><span class='label label-" + statusClass(campaign.status) + " user-campaign-status'>" +
         escapeHtml(campaign.status || "Unknown") + "</span></div></div>" +
         "<div class='row user-campaign-card-metrics'>" +
         metric("Recipients", stats.total, "", "") + metric("Opened", percentage(stats.opened, stats.total), stats.opened + " people", "") +
         metric("Reported", percentage(stats.reported, stats.total), stats.reported + " people", "success") +
-        metric("Risk actions", percentage(stats.clicked + stats.submitted, stats.total), activity + " interactions", "danger") +
+        metric("Ризикові дії", percentage(stats.clicked + stats.submitted, stats.total), activity + " взаємодій", "danger") +
         "</div>" +
-        "<div class='user-campaign-card-footer'><span class='text-muted'><i class='fa fa-users'></i> " + (campaign.groups || []).length + " group(s) &nbsp; <i class='fa fa-sitemap'></i> " + (campaign.scenarios || []).length + " scenario(s)</span>" +
-        "<button class='btn btn-primary btn-sm pull-right show-user-campaign-details' data-campaign-index='" + index + "'><i class='fa fa-eye'></i> View details</button></div>" +
+        "<div class='user-campaign-card-footer'><span class='text-muted'><i class='fa fa-users'></i> " + (campaign.groups || []).length + " груп &nbsp; <i class='fa fa-sitemap'></i> " + (campaign.scenarios || []).length + " сценаріїв</span>" +
+        "<button class='btn btn-primary btn-sm pull-right show-user-campaign-details' data-campaign-index='" + index + "'><i class='fa fa-eye'></i> Переглянути деталі</button></div>" +
         "</div></article>"
 }
 
@@ -265,10 +265,10 @@ const renderTotals = () => {
         submitted += stats.submitted
     }))
     $("#userCampaignTotals").html(
-        totalCard("fa-users", "Users", userCampaignWorkspaces.length, "primary") +
-        totalCard("fa-bullhorn", "Campaigns", campaigns.length, "info") +
-        totalCard("fa-envelope", "Recipients", recipients, "warning") +
-        totalCard("fa-flag", "Reported emails", reported + " / " + submitted + " submitted", "success"))
+        totalCard("fa-users", "Користувачі", userCampaignWorkspaces.length, "primary") +
+        totalCard("fa-bullhorn", "Кампанії", campaigns.length, "info") +
+        totalCard("fa-envelope", "Отримувачі", recipients, "warning") +
+        totalCard("fa-flag", "Повідомлені листи", reported + " / " + submitted + " із введеними даними", "success"))
 }
 
 const renderCampaigns = () => {
@@ -328,7 +328,7 @@ $(document).ready(() => {
         $("#userCampaignDashboard").show()
     }).error((data) => {
         $("#loading").hide()
-        errorFlash(data.responseJSON ? data.responseJSON.message : "Error loading user campaigns")
+        errorFlash(data.responseJSON ? data.responseJSON.message : "Помилка завантаження кампаній користувачів")
     })
 
     $(document).on("input change", "#userCampaignSearch, #userCampaignStatus, #userCampaignOwner", renderCampaigns)

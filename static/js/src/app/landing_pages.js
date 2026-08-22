@@ -52,11 +52,11 @@ function dismiss() {
 var deletePage = function (idx) {
     Swal.fire({
         title: "Are you sure?",
-        text: "This will delete the landing page. This can't be undone!",
+        text: "Цільову сторінку буде видалено. Цю дію неможливо скасувати!",
         type: "warning",
         animation: false,
         showCancelButton: true,
-        confirmButtonText: "Delete " + escapeHtml(pages[idx].name),
+        confirmButtonText: "Видалити " + escapeHtml(pages[idx].name),
         confirmButtonColor: "#428bca",
         reverseButtons: true,
         allowOutsideClick: false,
@@ -88,7 +88,7 @@ var deletePage = function (idx) {
 function importSite() {
     url = $("#url").val()
     if (!url) {
-        modalError("No URL Specified!")
+        modalError("URL не вказано!")
     } else {
         api.clone_site({
                 url: url,
@@ -113,7 +113,7 @@ function edit(idx) {
     setupAutocomplete(CKEDITOR.instances["html_editor"])
     var page = {}
     if (idx != -1) {
-        $("#modalLabel").text("Edit Landing Page")
+        $("#modalLabel").text("Редагування цільової сторінки")
         page = pages[idx]
         $("#name").val(page.name)
         $("#html_editor").val(page.html)
@@ -125,7 +125,7 @@ function edit(idx) {
             $("#redirect_url").show()
         }
     } else {
-        $("#modalLabel").text("New Landing Page")
+        $("#modalLabel").text("Нова цільова сторінка")
     }
 }
 
@@ -135,7 +135,7 @@ function copy(idx) {
     })
     $("#html_editor").ckeditor()
     var page = pages[idx]
-    $("#name").val("Copy of " + page.name)
+    $("#name").val("Копія " + page.name)
     $("#html_editor").val(page.html)
 }
 
@@ -184,7 +184,7 @@ function load() {
         })
         .error(function () {
             $("#loading").hide()
-            errorFlash("Error fetching pages")
+            errorFlash("Помилка завантаження цільових сторінок")
         })
 }
 

@@ -79,7 +79,7 @@ const load = () => {
             })
         })
         .error(() => {
-            errorFlash("Error fetching webhooks")
+            errorFlash("Не вдалося отримати список вебхуків")
         })
 };
 
@@ -88,7 +88,7 @@ const editWebhook = (id) => {
         saveWebhook(id);
     });
     if (id !== -1) {
-        $("#webhookModalLabel").text("Edit Webhook")
+        $("#webhookModalLabel").text("Змінити вебхук")
         api.webhookId.get(id)
           .success(function(wh) {
               $("#name").val(wh.name);
@@ -97,10 +97,10 @@ const editWebhook = (id) => {
               $("#is_active").prop("checked", wh.is_active);
           })
           .error(function () {
-              errorFlash("Error fetching webhook")
+              errorFlash("Не вдалося отримати дані вебхука")
           });
     } else {
-        $("#webhookModalLabel").text("New Webhook")
+        $("#webhookModalLabel").text("Новий вебхук")
     }
 };
 
@@ -115,7 +115,7 @@ const deleteWebhook = (id) => {
         type: "warning",
         animation: false,
         showCancelButton: true,
-        confirmButtonText: "Delete",
+        confirmButtonText: "Видалити",
         confirmButtonColor: "#428bca",
         reverseButtons: true,
         allowOutsideClick: false,

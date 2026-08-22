@@ -1,13 +1,13 @@
 {{define "body"}}
 <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
     <h1 class="page-header">
-        Sending Profiles
+        Профілі відправлення
     </h1>
     <div id="flashes" class="row"></div>
     {{if .ModifyObjects}}
     <div class="row">
         <button type="button" class="btn btn-primary" onclick="edit(-1)" data-toggle="modal" data-backdrop="static"
-            data-target="#modal"><i class="fa fa-plus"></i> New Profile</button>
+            data-target="#modal"><i class="fa fa-plus"></i> Новий профіль</button>
     </div>
     {{end}}
     &nbsp;
@@ -16,16 +16,16 @@
     </div>
     <div id="emptyMessage" class="row" style="display:none;">
         <div class="alert alert-info">
-            No profiles created yet. Let's create one!
+            Профілів ще немає. Створімо перший.
         </div>
     </div>
     <div class="row">
-        <table id="profileTable" class="table" style="display:none;">
+        <table id="profileTable" class="table app-list-table" style="display:none;">
             <thead>
                 <tr>
-                    <th class="col-md-4">Name</th>
-                    <th>Interface Type</th>
-                    <th>Last Modified Date</th>
+                    <th class="col-md-4">Назва</th>
+                    <th>Тип інтерфейсу</th>
+                    <th>Дата зміни</th>
                     <th class="col-md-2 no-sort"></th>
                 </tr>
             </thead>
@@ -42,29 +42,29 @@
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close" onclick="dismiss()"><span
                         aria-hidden="true">&times;</span></button>
-                <h4 class="modal-title" id="profileModalLabel">New Sending Profile</h4>
+                <h4 class="modal-title" id="profileModalLabel">Новий профіль відправлення</h4>
             </div>
             <div class="modal-body">
                 <div class="row" id="modal.flashes"></div>
                 <form>
                     <div class="form-group">
-                        <label class="control-label" for="name">Name:</label>
-                        <input type="text" class="form-control" placeholder="Profile name" id="name" autofocus />
-                        <label class="control-label" for="interface_type">Interface Type:</label>
+                        <label class="control-label" for="name">Назва:</label>
+                        <input type="text" class="form-control" placeholder="Назва профілю" id="name" autofocus />
+                        <label class="control-label" for="interface_type">Тип інтерфейсу:</label>
                         <input type="text" class="form-control" value="SMTP" id="interface_type" disabled />
-                        <label class="control-label" for="from">SMTP From: <i class="fa fa-question-circle"
+                        <label class="control-label" for="from">SMTP-відправник: <i class="fa fa-question-circle"
                                 data-toggle="tooltip" data-placement="right" title="Set this to an email address from your sending domain to bypass SPF-checks. You can set the Envelope Sender in Email Templates. The Envelope Sender is shown to the user."></i></label>
                         <input type="text" class="form-control" placeholder="test@example.com" id="from"
                             required />
-                        <label class="control-label" for="host">Host:</label>
+                        <label class="control-label" for="host">Сервер:</label>
                         <input type="text" class="form-control" placeholder="smtp.example.com:25" id="host" required />
-                        <label class="control-label" for="username">Username:</label>
-                        <input type="text" class="form-control" placeholder="Username" id="username" />
-                        <label class="control-label" for="password">Password:</label>
-                        <input type="password" class="form-control" placeholder="Password" id="password" />
+                        <label class="control-label" for="username">Ім’я користувача:</label>
+                        <input type="text" class="form-control" placeholder="Ім’я користувача" id="username" />
+                        <label class="control-label" for="password">Пароль:</label>
+                        <input type="password" class="form-control" placeholder="Пароль" id="password" />
                         <div class="checkbox checkbox-primary">
                             <input id="ignore_cert_errors" type="checkbox" checked>
-                            <label for="ignore_cert_errors">Ignore Certificate Errors <i class="fa fa-question-circle"
+                            <label for="ignore_cert_errors">Ігнорувати помилки сертифіката <i class="fa fa-question-circle"
                                     data-toggle="tooltip" data-placement="right" title="Ignore common certificate errors such as self-signed certs (exposes you to MiTM attacks - use carefully!)"></i></label>
                         </div>
                     </div>
@@ -77,8 +77,8 @@
                             <input type="text" class="form-control" name="headerValue" id="headerValue" placeholder='{{"{{"}}.URL{{"}}"}}-gophish'>
                         </div>
                         <div class="col-md-2">
-                            <button id="addCustomHeader" class="btn btn-danger btn-headers" type="button"><i class="fa fa-plus"></i> Add
-                                Custom Header</button>
+                            <button id="addCustomHeader" class="btn btn-danger btn-headers" type="button"><i class="fa fa-plus"></i> Додати
+                                власний заголовок</button>
                         </div>
                     </fieldset>
                     <table id="headersTable" class="table table-hover table-striped table-condensed">
@@ -93,12 +93,12 @@
                         </tbody>
                     </table>
                     <button type="button" data-toggle="modal" data-backdrop="static" data-target="#sendTestEmailModal"
-                        class="btn btn-primary"><i class="fa fa-envelope"></i> Send Test Email</button>
+                        class="btn btn-primary"><i class="fa fa-envelope"></i> Надіслати тестовий лист</button>
                 </form>
             </div>
             <div class="modal-footer">
-                <button type="button" data-dismiss="modal" class="btn btn-default" onclick="dismiss()">Cancel</button>
-                <button type="button" class="btn btn-primary" id="modalSubmit">Save Profile</button>
+                <button type="button" data-dismiss="modal" class="btn btn-default" onclick="dismiss()">Скасувати</button>
+                <button type="button" class="btn btn-primary" id="modalSubmit">Зберегти профіль</button>
             </div>
         </div>
     </div>

@@ -2,41 +2,41 @@
 <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
     <div class="row user-campaigns-header">
         <div class="col-sm-8">
-            <h1 class="page-header">Users Campaigns</h1>
-            <p class="text-muted">Administrative, read-only view of campaigns and the materials used by every user.</p>
+            <h1 class="page-header">Кампанії користувачів</h1>
+            <p class="text-muted">Адміністративний режим перегляду кампаній і матеріалів усіх користувачів.</p>
         </div>
         <div class="col-sm-4 text-right user-campaigns-header-actions">
-            <button id="resetUserCampaignFilters" class="btn btn-default"><i class="fa fa-undo"></i> Reset filters</button>
+            <button id="resetUserCampaignFilters" class="btn btn-default"><i class="fa fa-undo"></i> Скинути фільтри</button>
         </div>
     </div>
     <div id="flashes" class="row"></div>
-    <div id="loading" class="text-center user-campaigns-loading"><i class="fa fa-spinner fa-spin fa-3x"></i><p>Loading campaign workspaces…</p></div>
+    <div id="loading" class="text-center user-campaigns-loading"><i class="fa fa-spinner fa-spin fa-3x"></i><p>Завантаження робочих просторів кампаній…</p></div>
     <div id="userCampaignDashboard" style="display:none;">
         <div class="row" id="userCampaignTotals"></div>
         <div class="panel panel-default user-campaigns-filters">
             <div class="panel-body">
                 <div class="row">
                     <div class="col-md-5 form-group">
-                        <label for="userCampaignSearch">Search</label>
+                        <label for="userCampaignSearch">Пошук</label>
                         <div class="input-group">
                             <span class="input-group-addon"><i class="fa fa-search"></i></span>
-                            <input id="userCampaignSearch" class="form-control" type="search" placeholder="User, campaign, group, template, or scenario">
+                            <input id="userCampaignSearch" class="form-control" type="search" placeholder="Користувач, кампанія, група, шаблон або сценарій">
                         </div>
                     </div>
                     <div class="col-md-3 form-group">
-                        <label for="userCampaignStatus">Campaign status</label>
+                        <label for="userCampaignStatus">Стан кампанії</label>
                         <select id="userCampaignStatus" class="form-control">
-                            <option value="">All statuses</option>
+                            <option value="">Усі стани</option>
                         </select>
                     </div>
                     <div class="col-md-3 form-group">
-                        <label for="userCampaignOwner">Owner</label>
+                        <label for="userCampaignOwner">Власник</label>
                         <select id="userCampaignOwner" class="form-control">
-                            <option value="">All users</option>
+                            <option value="">Усі користувачі</option>
                         </select>
                     </div>
                     <div class="col-md-1 form-group user-campaigns-filter-count">
-                        <label>Shown</label>
+                        <label>Показано</label>
                         <p id="userCampaignFilterCount" class="form-control-static">0</p>
                     </div>
                 </div>
@@ -44,7 +44,7 @@
         </div>
         <div id="userCampaignWorkspaces"></div>
         <div id="userCampaignEmpty" class="panel panel-default text-center" style="display:none;">
-            <div class="panel-body"><i class="fa fa-search fa-2x text-muted"></i><p>No campaigns match the selected filters.</p></div>
+            <div class="panel-body"><i class="fa fa-search fa-2x text-muted"></i><p>Кампаній за вибраними фільтрами не знайдено.</p></div>
         </div>
     </div>
 </div>
@@ -54,11 +54,11 @@
         <div class="modal-content">
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                <h4 class="modal-title" id="userCampaignDetailsTitle">Campaign details</h4>
+                <h4 class="modal-title" id="userCampaignDetailsTitle">Деталі кампанії</h4>
             </div>
             <div class="modal-body" id="userCampaignDetailsContent"></div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-default" data-dismiss="modal">Закрити</button>
             </div>
         </div>
     </div>

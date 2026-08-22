@@ -93,6 +93,8 @@ styles = function () {
             css_directory + 'select2-bootstrap.min.css',
             css_directory + 'typography.css',
             css_directory + 'pagination.css',
+            css_directory + 'list-tables.css',
+            css_directory + 'modal-design.css',
         ])
         .pipe(cleanCSS({
             compatibilty: 'ie9'

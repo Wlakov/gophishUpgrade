@@ -11,20 +11,20 @@
     <div class="row">
         <button type="button" class="btn btn-primary" id="new_button" data-toggle="modal" data-backdrop="static"
             data-user-id="-1" data-target="#modal">
-            <i class="fa fa-plus"></i> New User</button>
+            <i class="fa fa-plus"></i> Новий користувач</button>
     </div>
     &nbsp;
     <div id="loading">
         <i class="fa fa-spinner fa-spin fa-4x"></i>
     </div>
     <div class="row">
-        <table id="userTable" class="table" style="display:none;">
+        <table id="userTable" class="table app-list-table" style="display:none;">
             <thead>
                 <tr>
-                    <th>Username</th>
-                    <th>Role</th>
-                    <th>Department</th>
-                    <th>Last Login</th>
+                    <th>Ім’я користувача</th>
+                    <th>Роль</th>
+                    <th>Підрозділ</th>
+                    <th>Останній вхід</th>
                     <th class="col-md-2 no-sort"></th>
                 </tr>
             </thead>
@@ -41,17 +41,17 @@
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
-                <h4 class="modal-title" id="userModalLabel">New User</h4>
+                <h4 class="modal-title" id="userModalLabel">Новий користувач</h4>
             </div>
             <div class="modal-body" id="modal_body">
                 <div class="row" id="modal.flashes"></div>
-                <label class="control-label" for="username">Username:</label>
+                <label class="control-label" for="username">Ім’я користувача:</label>
                 <div class="form-group">
-                    <input type="text" class="form-control" placeholder="Username" id="username" autofocus />
+                    <input type="text" class="form-control" placeholder="Ім’я користувача" id="username" autofocus />
                 </div>
-                <label class="control-label" for="password">Password:</label>
+                <label class="control-label" for="password">Пароль:</label>
                 <div class="form-group">
-                    <input type="password" class="form-control" autocomplete="new-password" placeholder="Password" id="password" required />
+                    <input type="password" class="form-control" autocomplete="new-password" placeholder="Пароль" id="password" required />
                     <div class="hidden" id="password-strength-container">
                         <div class="progress" id="password-strength">
                             <div id="password-strength-bar" class="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
@@ -59,38 +59,38 @@
                         <span id="password-strength-description"></span>
                     </div>
                 </div>
-                <label class="control-label" for="confirm_password">Confirm Password:</label>
+                <label class="control-label" for="confirm_password">Підтвердження пароля:</label>
                 <div class="form-group">
-                    <input type="password" class="form-control" placeholder="Confirm Password" id="confirm_password"
+                    <input type="password" class="form-control" placeholder="Підтвердіть пароль" id="confirm_password"
                         required />
                 </div>
                 <div class="checkbox checkbox-primary">
                     <input id="force_password_change_checkbox" type="checkbox" checked>
-                    <label for="force_password_change_checkbox">Require the user to set a new password</label>
+                    <label for="force_password_change_checkbox">Вимагати зміну пароля під час першого входу</label>
                 </div>
                 <div class="checkbox checkbox-primary">
                     <input id="account_locked_checkbox" type="checkbox">
-                    <label for="account_locked_checkbox">Account Locked</label>
+                    <label for="account_locked_checkbox">Обліковий запис заблоковано</label>
                 </div>
-                <label class="control-label" for="role">Role:</label>
+                <label class="control-label" for="role">Роль:</label>
                 <div class="form-group" id="role-select">
                     <select class="form-control" placeholder="" id="role" />
-                    <option value="admin">System Administrator</option>
-                    <option value="campaign_manager">Campaign Manager</option>
-                    <option value="editor">Editor</option>
-                    <option value="viewer">Viewer</option>
+                    <option value="admin">Системний адміністратор</option>
+                    <option value="campaign_manager">Керівник кампаній</option>
+                    <option value="editor">Редактор</option>
+                    <option value="viewer">Спостерігач</option>
                     </select>
                 </div>
                 <div id="manager-group" style="display:none;">
-                    <label class="control-label" for="manager_id">Campaign Manager:</label>
+                    <label class="control-label" for="manager_id">Керівник кампаній:</label>
                     <div class="form-group" id="manager-select">
                         <select class="form-control" id="manager_id"></select>
                     </div>
                 </div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                <button type="button" class="btn btn-primary" id="modalSubmit">Save changes</button>
+                <button type="button" class="btn btn-default" data-dismiss="modal">Закрити</button>
+                <button type="button" class="btn btn-primary" id="modalSubmit">Зберегти зміни</button>
             </div>
         </div>
     </div>

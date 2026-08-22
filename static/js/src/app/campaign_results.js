@@ -126,12 +126,12 @@ function dismiss() {
 // Deletes a campaign after prompting the user
 function deleteCampaign() {
     Swal.fire({
-        title: "Are you sure?",
-        text: "This will delete the campaign. This can't be undone!",
+        title: "Ви впевнені?",
+        text: "Кампанію буде видалено. Цю дію неможливо скасувати!",
         type: "warning",
         animation: false,
         showCancelButton: true,
-        confirmButtonText: "Delete Campaign",
+        confirmButtonText: "Видалити кампанію",
         confirmButtonColor: "#428bca",
         reverseButtons: true,
         allowOutsideClick: false,
@@ -164,12 +164,12 @@ function deleteCampaign() {
 // Completes a campaign after prompting the user
 function completeCampaign() {
     Swal.fire({
-        title: "Are you sure?",
-        text: "Gophish will stop processing events for this campaign",
+        title: "Ви впевнені?",
+        text: "Gophish припинить обробку подій цієї кампанії",
         type: "warning",
         animation: false,
         showCancelButton: true,
-        confirmButtonText: "Complete Campaign",
+        confirmButtonText: "Завершити кампанію",
         confirmButtonColor: "#428bca",
         reverseButtons: true,
         allowOutsideClick: false,
@@ -400,8 +400,8 @@ function renderTimeline(data) {
                 }
                 if (event.message == "Submitted Data") {
                     results += '<div class="timeline-replay-button"><button onclick="replay(' + i + ')" class="btn btn-success">'
-                    results += '<i class="fa fa-refresh"></i> Replay Credentials</button></div>'
-                    results += '<div class="timeline-event-details"><i class="fa fa-caret-right"></i> View Details</div>'
+                    results += '<i class="fa fa-refresh"></i> Повторити введення даних</button></div>'
+                    results += '<div class="timeline-event-details"><i class="fa fa-caret-right"></i> Переглянути деталі</div>'
                 }
                 if (details.payload) {
                     results += '<div class="timeline-event-results">'
@@ -420,7 +420,7 @@ function renderTimeline(data) {
                     results += '</div>'
                 }
                 if (details.error) {
-                    results += '<div class="timeline-event-details"><i class="fa fa-caret-right"></i> View Details</div>'
+                    results += '<div class="timeline-event-details"><i class="fa fa-caret-right"></i> Переглянути деталі</div>'
                     results += '<div class="timeline-event-results">'
                     results += '<span class="label label-default">Error</span> ' + details.error
                     results += '</div>'
@@ -436,7 +436,7 @@ function renderTimeline(data) {
         results +=
             '    <div class="timeline-icon ' + statuses[record.status].label + '">' +
             '    <i class="fa ' + statuses[record.status].icon + '"></i></div>' +
-            '    <div class="timeline-message">' + "Scheduled to send at " + record.send_date + '</span>'
+            '    <div class="timeline-message">' + "Заплановано на " + record.send_date + '</span>'
     }
     results += '</div></div>'
     return results
@@ -616,7 +616,7 @@ function createStatusLabel(status, send_date) {
     var statusColumn = "<span class=\"label " + label + "\">" + status + "</span>"
     // Add the tooltip if the email is scheduled to be sent
     if (status == "Scheduled" || status == "Retrying") {
-        var sendDateMessage = "Scheduled to send at " + send_date
+        var sendDateMessage = "Заплановано на " + send_date
         statusColumn = "<span class=\"label " + label + "\" data-toggle=\"tooltip\" data-placement=\"top\" data-html=\"true\" title=\"" + sendDateMessage + "\">" + status + "</span>"
     }
     return statusColumn
@@ -768,7 +768,7 @@ function load() {
                 $("#loading").hide()
                 $("#campaignResults").show()
                 // Set the title
-                $("#page-title").text("Results for " + c.name)
+                $("#page-title").text("Результати кампанії: " + c.name)
                 renderScenarioStats(campaign.scenario_stats)
                 if (c.status == "Completed") {
                     $('#complete_button')[0].disabled = true;
@@ -960,7 +960,7 @@ function refresh() {
 function report_mail(rid, cid) {
     Swal.fire({
         title: "Are you sure?",
-        text: "This result will be flagged as reported (RID: " + rid + ")",
+        text: "Для цього результату буде встановлено позначку повідомлення (RID: " + rid + ")",
         type: "question",
         animation: false,
         showCancelButton: true,

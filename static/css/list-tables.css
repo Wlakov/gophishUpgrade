@@ -1,0 +1,91 @@
+/* Shared list-table presentation for campaigns and reusable resources. */
+.main .app-list-table {
+    background: #ffffff;
+    border: 1px solid #dfe7ec;
+    border-collapse: separate;
+    border-radius: 9px;
+    border-spacing: 0;
+    box-shadow: 0 3px 12px rgba(37, 61, 77, .055);
+    overflow: hidden;
+}
+
+.main .app-list-table > thead > tr > th {
+    background: #f6f9fb;
+    border-bottom: 1px solid #d8e3e9;
+    color: #526b7c;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: .07em;
+    padding: 13px 15px;
+    text-transform: uppercase;
+    vertical-align: middle;
+}
+
+.main .app-list-table > tbody > tr {
+    transition: background-color .16s ease, box-shadow .16s ease;
+}
+
+.main .app-list-table > tbody > tr:hover {
+    background: #f7fbfd;
+    box-shadow: inset 3px 0 0 #4c86b5;
+}
+
+.main .app-list-table > tbody > tr > td {
+    border-top: 1px solid #e8eef2;
+    color: #405867;
+    font-size: 13px;
+    padding: 13px 15px;
+    vertical-align: middle;
+}
+
+.main .app-list-table > tbody > tr:first-child > td {
+    border-top: 0;
+}
+
+.main .app-list-table > tbody > tr > td:first-child {
+    color: #294b61;
+    font-weight: 700;
+}
+
+.main .app-list-table > tbody > tr > td:nth-last-child(2) {
+    color: #718493;
+}
+
+.main .app-list-table > tbody > tr > td:last-child,
+.main .app-list-table > thead > tr > th:last-child {
+    min-width: 150px;
+    text-align: right;
+    white-space: nowrap;
+}
+
+.main .app-list-table > tbody > tr > td:last-child .btn {
+    margin: 2px 0 2px 5px;
+}
+
+.main .app-list-table > tbody > tr > td:last-child .btn:first-child {
+    margin-left: 0;
+}
+
+.main .app-list-table .dataTables_empty {
+    color: #7b8d99;
+    font-size: 13px;
+    padding: 28px 15px;
+    text-align: center;
+}
+
+@media (max-width: 767px) {
+    .main .app-list-table > thead > tr > th,
+    .main .app-list-table > tbody > tr > td {
+        padding-left: 10px;
+        padding-right: 10px;
+    }
+
+    .main .app-list-table > tbody > tr > td:last-child,
+    .main .app-list-table > thead > tr > th:last-child {
+        min-width: 112px;
+    }
+
+    .main .app-list-table > tbody > tr > td:last-child .btn {
+        margin: 2px 0;
+    }
+}

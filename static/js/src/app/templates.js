@@ -48,7 +48,7 @@ function save(idx) {
         template.id = templates[idx].id
         api.templateId.put(template)
             .success(function (data) {
-                successFlash("Template edited successfully!")
+                successFlash("Шаблон успішно оновлено!")
                 load()
                 dismiss()
             })
@@ -59,7 +59,7 @@ function save(idx) {
         // Submit the template
         api.templates.post(template)
             .success(function (data) {
-                successFlash("Template added successfully!")
+                successFlash("Шаблон успішно додано!")
                 load()
                 dismiss()
             })
@@ -82,11 +82,11 @@ function dismiss() {
 var deleteTemplate = function (idx) {
     Swal.fire({
         title: "Are you sure?",
-        text: "This will delete the template. This can't be undone!",
+        text: "Шаблон буде видалено. Цю дію неможливо скасувати!",
         type: "warning",
         animation: false,
         showCancelButton: true,
-        confirmButtonText: "Delete " + escapeHtml(templates[idx].name),
+        confirmButtonText: "Видалити " + escapeHtml(templates[idx].name),
         confirmButtonColor: "#428bca",
         reverseButtons: true,
         allowOutsideClick: false,
@@ -116,7 +116,7 @@ var deleteTemplate = function (idx) {
 }
 
 function deleteTemplate(idx) {
-    if (confirm("Delete " + templates[idx].name + "?")) {
+    if (confirm("Видалити " + templates[idx].name + "?")) {
         api.templateId.delete(templates[idx].id)
             .success(function (data) {
                 successFlash(data.message)
@@ -187,7 +187,7 @@ function edit(idx) {
         attachments: []
     }
     if (idx != -1) {
-        $("#templateModalLabel").text("Edit Template")
+        $("#templateModalLabel").text("Редагування шаблону")
         template = templates[idx]
         $("#name").val(template.name)
         $("#subject").val(template.subject)
@@ -214,7 +214,7 @@ function edit(idx) {
         }
 
     } else {
-        $("#templateModalLabel").text("New Template")
+        $("#templateModalLabel").text("Новий шаблон")
     }
     // Handle Deletion
     $("#attachmentsTable").unbind('click').on("click", "span>i.fa-trash-o", function () {
@@ -250,7 +250,7 @@ function copy(idx) {
         attachments: []
     }
     template = templates[idx]
-    $("#name").val("Copy of " + template.name)
+    $("#name").val("Копія " + template.name)
     $("#subject").val(template.subject)
     $("#envelope-sender").val(template.envelope_sender)
     $("#html_editor").val(template.html)
@@ -283,7 +283,7 @@ function importEmail() {
     raw = $("#email_content").val()
     convert_links = $("#convert_links_checkbox").prop("checked")
     if (!raw) {
-        modalError("No Content Specified!")
+        modalError("Вміст не вказано!")
     } else {
         api.import_email({
                 content: raw,
@@ -348,7 +348,7 @@ function load() {
         })
         .error(function () {
             $("#loading").hide()
-            errorFlash("Error fetching templates")
+            errorFlash("Помилка завантаження шаблонів")
         })
 }
 

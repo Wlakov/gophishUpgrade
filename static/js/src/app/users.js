@@ -53,7 +53,7 @@ const save = (id) => {
         user.id = id
         api.userId.put(user)
             .success((data) => {
-                successFlash("User " + escapeHtml(user.username) + " updated successfully!")
+                successFlash("Користувача " + escapeHtml(user.username) + " успішно змінено!")
                 load()
                 dismiss()
                 $("#modal").modal('hide')
@@ -66,7 +66,7 @@ const save = (id) => {
         // to /user
         api.users.post(user)
             .success((data) => {
-                successFlash("User " + escapeHtml(user.username) + " registered successfully!")
+                successFlash("Користувача " + escapeHtml(user.username) + " успішно зареєстровано!")
                 load()
                 dismiss()
                 $("#modal").modal('hide')
@@ -98,11 +98,11 @@ const edit = (id) => {
     $("#manager_id").select2()
     $("#role").off("change.manager").on("change.manager", () => updateManagerVisibility(null))
     if (id == -1) {
-        $("#userModalLabel").text("New User")
+        $("#userModalLabel").text("Новий користувач")
         $("#role").val("campaign_manager")
         $("#role").trigger("change")
     } else {
-        $("#userModalLabel").text("Edit User")
+        $("#userModalLabel").text("Змінити користувача")
         api.userId.get(id)
             .success((user) => {
                 $("#username").val(user.username)
@@ -116,7 +116,7 @@ const edit = (id) => {
                 }
             })
             .error(function () {
-                errorFlash("Error fetching user")
+                errorFlash("Не вдалося отримати дані користувача")
             })
     }
 }
@@ -128,19 +128,19 @@ const deleteUser = (id) => {
     }
     if (user.username == "admin") {
         Swal.fire({
-            title: "Unable to Delete User",
-            text: "The user account " + escapeHtml(user.username) + " cannot be deleted.",
+            title: "Неможливо видалити користувача",
+            text: "Обліковий запис " + escapeHtml(user.username) + " не можна видалити.",
             type: "info"
         });
         return
     }
     Swal.fire({
         title: "Are you sure?",
-        text: "This will delete the account for " + escapeHtml(user.username) + " as well as all of the objects they have created.\n\nThis can't be undone!",
+        text: "Буде видалено обліковий запис " + escapeHtml(user.username) + " і всі створені ним об’єкти.\n\nЦю дію неможливо скасувати!",
         type: "warning",
         animation: false,
         showCancelButton: true,
-        confirmButtonText: "Delete",
+        confirmButtonText: "Видалити",
         confirmButtonColor: "#428bca",
         reverseButtons: true,
         allowOutsideClick: false,
@@ -162,7 +162,7 @@ const deleteUser = (id) => {
         if (result.value){
             Swal.fire(
                 'User Deleted!',
-                "The user account for " + escapeHtml(user.username) + " and all associated objects have been deleted!",
+                "Обліковий запис " + escapeHtml(user.username) + " і пов’язані об’єкти видалено!",
                 'success'
             );
         }
@@ -183,7 +183,7 @@ const impersonate = (id) => {
         type: "warning",
         animation: false,
         showCancelButton: true,
-        confirmButtonText: "Swap User",
+        confirmButtonText: "Переключити користувача",
         confirmButtonColor: "#428bca",
         reverseButtons: true,
         allowOutsideClick: false,
@@ -199,11 +199,11 @@ const impersonate = (id) => {
           }).then((response) => {
                 if (response.status == 200) {
                     Swal.fire({
-                        title: "Success!",
-                        html: "Successfully changed to user <strong>" + escapeHtml(user.username) + "</strong>.",
+                        title: "Успішно!",
+                        html: "Виконано вхід як користувач <strong>" + escapeHtml(user.username) + "</strong>.",
                         type: "success",
                         showCancelButton: false,
-                        confirmButtonText: "Home",
+                        confirmButtonText: "На головну",
                         allowOutsideClick: false,
                     }).then((result) => {
                         if (result.value) {
@@ -211,9 +211,9 @@ const impersonate = (id) => {
                         }});
                 } else {
                     Swal.fire({
-                        title: "Error!",
+                        title: "Помилка!",
                         type: "error",
-                        html: "Failed to change to user <strong>" + escapeHtml(user.username) + "</strong>.",
+                        html: "Не вдалося виконати вхід як користувач <strong>" + escapeHtml(user.username) + "</strong>.",
                         showCancelButton: false,
                     })
                 }
@@ -247,11 +247,11 @@ const load = () => {
                 let managerName = "—"
                 if (user.manager_id) {
                     const manager = users.find(candidate => candidate.id === user.manager_id)
-                    managerName = manager ? manager.username : "Unassigned manager"
+                    managerName = manager ? manager.username : "Керівника не призначено"
                 }
                 let actions = "<div class='pull-right'>"
                 if (user.role.slug === "campaign_manager") {
-                    actions += "<a class='btn btn-info' title='View Department' href='/departments/" + user.id + "'><i class='fa fa-sitemap'></i></a> "
+                    actions += "<a class='btn btn-info' title='Переглянути підрозділ' href='/departments/" + user.id + "'><i class='fa fa-sitemap'></i></a> "
                 }
                 actions += "<button class='btn btn-warning impersonate_button' data-user-id='" + user.id + "'>\
                     <i class='fa fa-retweet'></i>\
@@ -273,7 +273,7 @@ const load = () => {
             userTable.rows.add(userRows).draw();
         })
         .error(() => {
-            errorFlash("Error fetching users")
+            errorFlash("Не вдалося отримати список користувачів")
         })
 }
 

@@ -41,13 +41,13 @@ $(document).ready(function () {
         
         //To avoid unmarshalling error in controllers/api/imap.go. It would fail gracefully, but with a generic error.
         if (imapSettings.host == ""){
-            errorFlash("No IMAP Host specified")
+            errorFlash("IMAP-сервер не вказано")
             document.body.scrollTop = 0;
             document.documentElement.scrollTop = 0;
             return false
         }
         if (imapSettings.port == ""){
-            errorFlash("No IMAP Port specified")
+            errorFlash("IMAP-порт не вказано")
             document.body.scrollTop = 0;
             document.documentElement.scrollTop = 0;
             return false
@@ -144,14 +144,14 @@ $(document).ready(function () {
                     html: "Unable to login to <b>" + escapeHtml($("#imaphost").val()) + "</b>.",
                     type: "error",
                     showCancelButton: true,
-                    cancelButtonText: "Close",
+                    cancelButtonText: "Закрити",
                     confirmButtonText: "More Info",
                     confirmButtonColor: "#428bca",
                     allowOutsideClick: false,
                 }).then(function(result) {
                     if (result.value) {
                         Swal.fire({
-                            title: "Error:",
+                            title: "Помилка:",
                             text: data.message,
                         })
                     }
@@ -226,7 +226,7 @@ $(document).ready(function () {
 
         })
         .error(function () {
-            errorFlash("Error fetching IMAP settings")
+            errorFlash("Помилка завантаження налаштувань IMAP")
         })
     }
 

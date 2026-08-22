@@ -1,13 +1,13 @@
 {{define "body"}}
 <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
     <h1 class="page-header">
-        Landing Pages
+        Сторінки переходу
     </h1>
     <div id="flashes" class="row"></div>
     {{if .ModifyObjects}}
     <div class="row">
         <button type="button" class="btn btn-primary" onclick="edit(-1)" data-toggle="modal" data-backdrop="static"
-            data-target="#modal"><i class="fa fa-plus"></i> New Page</button>
+            data-target="#modal"><i class="fa fa-plus"></i> Нова сторінка</button>
     </div>
     {{end}}
     &nbsp;
@@ -16,15 +16,15 @@
     </div>
     <div id="emptyMessage" class="row" style="display:none;">
         <div class="alert alert-info">
-            No pages created yet. Let's create one!
+            Сторінок ще немає. Створімо першу.
         </div>
     </div>
     <div class="row">
-        <table id="pagesTable" class="table" style="display:none;">
+        <table id="pagesTable" class="table app-list-table" style="display:none;">
             <thead>
                 <tr>
-                    <th>Name</th>
-                    <th>Last Modified Date</th>
+                    <th>Назва</th>
+                    <th>Дата зміни</th>
                     <th class="col-md-2 no-sort"></th>
                 </tr>
             </thead>
@@ -41,18 +41,18 @@
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close" onclick="dismiss()"><span
                         aria-hidden="true">&times;</span></button>
-                <h4 class="modal-title" id="modalLabel">New Landing Page</h4>
+                <h4 class="modal-title" id="modalLabel">Нова сторінка переходу</h4>
             </div>
             <div class="modal-body">
                 <div class="row" id="modal.flashes"></div>
-                <label class="control-label" for="name">Name:</label>
+                <label class="control-label" for="name">Назва:</label>
                 <div class="form-group">
-                    <input type="text" class="form-control" placeholder="Page name" id="name" autofocus />
+                    <input type="text" class="form-control" placeholder="Назва сторінки" id="name" autofocus />
                 </div>
                 <div class="form-group">
                     <button class="btn btn-danger" data-toggle="modal" data-backdrop="static" data-target="#importSiteModal"><i
                             class="fa fa-globe"></i>
-                        Import Site</button>
+                        Імпортувати сайт</button>
                 </div>
                 <!-- Nav tabs -->
                 <ul class="nav nav-tabs" role="tablist">
@@ -66,20 +66,20 @@
                 </div>
                 <div class="checkbox checkbox-primary">
                     <input id="capture_credentials_checkbox" type="checkbox">
-                    <label for="capture_credentials_checkbox">Capture Submitted Data <i class="fa fa-question-circle"
+                    <label for="capture_credentials_checkbox">Збирати введені дані <i class="fa fa-question-circle"
                             data-toggle="tooltip" data-placement="right" title="If the landing page contains a form, submitted input (except passwords!) will be captured."></i></label>
                 </div>
                 <div class="checkbox checkbox-primary" id="capture_passwords">
                     <input id="capture_passwords_checkbox" type="checkbox">
-                    <label for="capture_passwords_checkbox">Capture Passwords</label>
+                    <label for="capture_passwords_checkbox">Збирати паролі</label>
                     <div class="alert alert-warning">
-                        <i class="fa fa-exclamation-circle"></i> <b>Warning:</b> Credentials are currently <b>not
-                            encrypted</b>. This means that captured passwords are stored in the database as cleartext.
-                        Be careful with this!
+                        <i class="fa fa-exclamation-circle"></i> <b>Увага:</b> облікові дані наразі <b>не
+                            шифруються</b>. Зібрані паролі зберігаються у базі даних у відкритому вигляді.
+                        Використовуйте цю функцію обережно.
                     </div>
                 </div>
                 <div id="redirect_url">
-                    <label class="control-label" for="redirect_url_input">Redirect to: <i class="fa fa-question-circle"
+                    <label class="control-label" for="redirect_url_input">Перенаправляти на: <i class="fa fa-question-circle"
                             data-toggle="tooltip" data-placement="right" title="This option lets you redirect the user to a page after credentials are submitted."></i></label>
                     <div class="form-group">
                         <input id="redirect_url_input" class="form-control" placeholder="http://example.com" />
@@ -87,8 +87,8 @@
                 </div>
             </div>
             <div class="modal-footer">
-                <button type="button" data-dismiss="modal" class="btn btn-default" onclick="dismiss()">Cancel</button>
-                <button type="button" class="btn btn-primary" id="modalSubmit">Save Page</button>
+                <button type="button" data-dismiss="modal" class="btn btn-default" onclick="dismiss()">Скасувати</button>
+                <button type="button" class="btn btn-primary" id="modalSubmit">Зберегти сторінку</button>
             </div>
         </div>
     </div>
@@ -100,18 +100,18 @@
             <!-- New Template Modal -->
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                <h4 class="modal-title" id="importSiteModalLabel">Import Site</h4>
+                <h4 class="modal-title" id="importSiteModalLabel">Імпорт сайту</h4>
             </div>
             <div class="modal-body">
                 <div class="row" id="modal.flashes"></div>
-                <label class="control-label" for="url">URL:</label>
+                <label class="control-label" for="url">Адреса URL:</label>
                 <div class="form-group">
                     <input type="text" class="form-control" placeholder="http://google.com" id="url" autofocus />
                 </div>
             </div>
             <div class="modal-footer">
-                <button type="button" data-dismiss="modal" class="btn btn-default">Cancel</button>
-                <button type="button" class="btn btn-primary" id="modalSubmit" onclick="importSite()">Import</button>
+                <button type="button" data-dismiss="modal" class="btn btn-default">Скасувати</button>
+                <button type="button" class="btn btn-primary" id="modalSubmit" onclick="importSite()">Імпортувати</button>
             </div>
         </div>
     </div>

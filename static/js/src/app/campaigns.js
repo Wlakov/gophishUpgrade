@@ -15,7 +15,7 @@ var campaign = {}
 function launch() {
     Swal.fire({
         title: "Are you sure?",
-        text: "This will schedule the campaign to be launched.",
+        text: "Кампанію буде заплановано до запуску.",
         type: "question",
         animation: false,
         showCancelButton: true,
@@ -42,8 +42,8 @@ function launch() {
                     scenarios.push({ id: parseInt(scenario.id, 10) })
                 })
                 if (scenarios.length === 0) {
-                    modalError("Select at least one phishing scenario")
-                    reject("No phishing scenarios selected")
+                    modalError("Оберіть щонайменше один фішинговий сценарій")
+                    reject("Фішингові сценарії не обрано")
                     return
                 }
                 campaign = {
@@ -127,11 +127,11 @@ function dismiss() {
 function deleteCampaign(idx) {
     Swal.fire({
         title: "Are you sure?",
-        text: "This will delete the campaign. This can't be undone!",
+        text: "Кампанію буде видалено. Цю дію неможливо скасувати!",
         type: "warning",
         animation: false,
         showCancelButton: true,
-        confirmButtonText: "Delete " + campaigns[idx].name,
+        confirmButtonText: "Видалити " + campaigns[idx].name,
         confirmButtonColor: "#428bca",
         reverseButtons: true,
         allowOutsideClick: false,
@@ -165,7 +165,7 @@ function setupOptions() {
         .success(function (summaries) {
             groups = summaries.groups
             if (groups.length == 0) {
-                modalError("No groups found!")
+                modalError("Груп не знайдено!")
                 return false;
             } else {
                 var group_s2 = $.map(groups, function (obj) {
@@ -175,7 +175,7 @@ function setupOptions() {
                 });
                 console.log(group_s2)
                 $("#users.form-control").select2({
-                    placeholder: "Select Groups",
+                    placeholder: "Оберіть групи",
                     data: group_s2,
                 });
             }
@@ -183,7 +183,7 @@ function setupOptions() {
     api.scenarios.get()
         .success(function (scenarios) {
             if (scenarios.length === 0) {
-                modalError("No phishing scenarios found. Create one first.")
+                modalError("Фішингових сценаріїв не знайдено. Спочатку створіть сценарій.")
                 return false
             }
             var scenarioOptions = $.map(scenarios, function (scenario) {
@@ -194,7 +194,7 @@ function setupOptions() {
                 }
             })
             $("#scenarios").select2({
-                placeholder: "Select one or more phishing scenarios",
+                    placeholder: "Оберіть один або кілька фішингових сценаріїв",
                 data: scenarioOptions
             })
         });
@@ -209,7 +209,7 @@ function copy(idx) {
     // Set our initial values
     api.campaignId.get(campaigns[idx].id)
         .success(function (campaign) {
-            $("#name").val("Copy of " + campaign.name)
+            $("#name").val("Копія " + campaign.name)
             var scenarioIds = $.map(campaign.scenarios || [], function (scenario) {
                 return scenario.id.toString()
             })
@@ -345,7 +345,7 @@ $(document).ready(function () {
         })
         .error(function () {
             $("#loading").hide()
-            errorFlash("Error fetching campaigns")
+            errorFlash("Помилка завантаження кампаній")
         })
     // Select2 Defaults
     $.fn.select2.defaults.set("width", "100%");

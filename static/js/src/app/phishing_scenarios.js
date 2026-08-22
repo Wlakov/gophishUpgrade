@@ -8,19 +8,19 @@ function optionsFor(items) {
 
 function loadOptions(scenario) {
     api.templates.get().success(function (templates) {
-        $("#template").empty().select2({ placeholder: "Select an Email Template", data: optionsFor(templates) })
+        $("#template").empty().select2({ placeholder: "Оберіть шаблон листа", data: optionsFor(templates) })
         if (scenario) {
             $("#template").val(scenario.template_id).trigger("change")
         }
     })
     api.pages.get().success(function (pages) {
-        $("#page").empty().select2({ placeholder: "Select a Landing Page", data: optionsFor(pages) })
+        $("#page").empty().select2({ placeholder: "Оберіть цільову сторінку", data: optionsFor(pages) })
         if (scenario) {
             $("#page").val(scenario.page_id).trigger("change")
         }
     })
     api.SMTP.get().success(function (profiles) {
-        $("#profile").empty().select2({ placeholder: "Select a Sending Profile", data: optionsFor(profiles) })
+        $("#profile").empty().select2({ placeholder: "Оберіть профіль відправлення", data: optionsFor(profiles) })
         if (scenario) {
             $("#profile").val(scenario.smtp_id).trigger("change")
         }
@@ -42,7 +42,7 @@ function save(idx) {
     }
     var request = idx === -1 ? api.scenarios.post(scenario) : api.scenarioId.put($.extend(scenario, { id: scenarios[idx].id }))
     request.success(function () {
-        successFlash(idx === -1 ? "Scenario created successfully!" : "Scenario updated successfully!")
+        successFlash(idx === -1 ? "Сценарій успішно створено!" : "Сценарій успішно оновлено!")
         $("#modal").modal("hide")
         load()
     }).error(function (data) {
@@ -53,7 +53,7 @@ function save(idx) {
 function edit(idx) {
     var scenario = idx === -1 ? null : scenarios[idx]
     dismiss()
-    $("#modalLabel").text(idx === -1 ? "New Phishing Scenario" : "Edit Phishing Scenario")
+    $("#modalLabel").text(idx === -1 ? "Новий фішинговий сценарій" : "Редагування фішингового сценарію")
     loadOptions(scenario)
     if (scenario) {
         $("#name").val(scenario.name)
@@ -64,16 +64,16 @@ function edit(idx) {
 function deleteScenario(idx) {
     Swal.fire({
         title: "Are you sure?",
-        text: "This will delete the scenario. It cannot be undone!",
+        text: "Сценарій буде видалено. Цю дію неможливо скасувати!",
         type: "warning",
         showCancelButton: true,
-        confirmButtonText: "Delete " + scenarios[idx].name,
+        confirmButtonText: "Видалити " + scenarios[idx].name,
         confirmButtonColor: "#428bca",
         reverseButtons: true
     }).then(function (result) {
         if (!result.value) return
         api.scenarioId.delete(scenarios[idx].id).success(function () {
-            successFlash("Scenario deleted successfully!")
+            successFlash("Сценарій успішно видалено!")
             load()
         }).error(function (data) {
             errorFlash(data.responseJSON.message)
@@ -106,7 +106,7 @@ function load() {
         $("#scenariosTable").show()
     }).error(function () {
         $("#loading").hide()
-        errorFlash("Error fetching phishing scenarios")
+        errorFlash("Помилка завантаження фішингових сценаріїв")
     })
 }
 
