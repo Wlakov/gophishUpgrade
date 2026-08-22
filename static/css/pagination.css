@@ -1,0 +1,124 @@
+/* Consistent pagination controls for every data table. */
+.dataTables_wrapper .dataTables_paginate {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 16px;
+}
+
+.dataTables_wrapper .dataTables_paginate ul.pagination {
+    align-items: center;
+    background: transparent;
+    border: 0;
+    border-radius: 0;
+    box-shadow: none;
+    display: flex;
+    gap: 8px;
+    margin: 0;
+    padding: 0;
+}
+
+.dataTables_wrapper .dataTables_paginate ul.pagination li {
+    display: block;
+    margin: 0;
+}
+
+.dataTables_wrapper .dataTables_paginate ul.pagination li > a,
+.dataTables_wrapper .dataTables_paginate ul.pagination li > span {
+    align-items: center;
+    background: #ffffff !important;
+    border: 1px solid #d7e0e6 !important;
+    border-radius: 8px !important;
+    color: #34495e !important;
+    display: inline-flex;
+    font-size: 13px;
+    font-weight: 600;
+    justify-content: center;
+    line-height: 20px;
+    margin: 0;
+    min-width: 34px;
+    padding: 7px 11px;
+    text-decoration: none;
+    transition: background-color .18s ease, border-color .18s ease, color .18s ease, transform .18s ease;
+}
+
+.dataTables_wrapper .dataTables_paginate ul.pagination li.previous > a,
+.dataTables_wrapper .dataTables_paginate ul.pagination li.previous > span,
+.dataTables_wrapper .dataTables_paginate ul.pagination li.next > a,
+.dataTables_wrapper .dataTables_paginate ul.pagination li.next > span {
+    min-width: 98px;
+}
+
+.dataTables_wrapper .dataTables_paginate ul.pagination li.previous > a::before,
+.dataTables_wrapper .dataTables_paginate ul.pagination li.previous > span::before {
+    content: "\f053";
+    font-family: FontAwesome !important;
+    font-size: 11px;
+    margin-right: 7px;
+}
+
+.dataTables_wrapper .dataTables_paginate ul.pagination li.next > a::after,
+.dataTables_wrapper .dataTables_paginate ul.pagination li.next > span::after {
+    content: "\f054";
+    font-family: FontAwesome !important;
+    font-size: 11px;
+    margin-left: 7px;
+}
+
+.dataTables_wrapper .dataTables_paginate ul.pagination li > a:hover,
+.dataTables_wrapper .dataTables_paginate ul.pagination li > a:focus,
+.dataTables_wrapper .dataTables_paginate ul.pagination li > span:hover,
+.dataTables_wrapper .dataTables_paginate ul.pagination li > span:focus {
+    background: #eef6fb !important;
+    border-color: #4c86b5 !important;
+    color: #2f6f9e !important;
+    transform: translateY(-1px);
+}
+
+.dataTables_wrapper .dataTables_paginate ul.pagination li.active > a,
+.dataTables_wrapper .dataTables_paginate ul.pagination li.active > span {
+    background: #4c86b5 !important;
+    border-color: #4c86b5 !important;
+    color: #ffffff !important;
+}
+
+.dataTables_wrapper .dataTables_paginate ul.pagination li.disabled > a,
+.dataTables_wrapper .dataTables_paginate ul.pagination li.disabled > span {
+    background: #f5f7f8 !important;
+    border-color: #e3e8eb !important;
+    color: #aab4bc !important;
+    cursor: not-allowed;
+    opacity: 1;
+    transform: none;
+}
+
+@media (max-width: 480px) {
+    .dataTables_wrapper .dataTables_paginate {
+        justify-content: center;
+    }
+
+    .dataTables_wrapper .dataTables_paginate ul.pagination li.previous > a,
+    .dataTables_wrapper .dataTables_paginate ul.pagination li.previous > span,
+    .dataTables_wrapper .dataTables_paginate ul.pagination li.next > a,
+    .dataTables_wrapper .dataTables_paginate ul.pagination li.next > span {
+        min-width: 42px;
+        padding-left: 9px;
+        padding-right: 9px;
+    }
+
+    .dataTables_wrapper .dataTables_paginate ul.pagination li.previous > a,
+    .dataTables_wrapper .dataTables_paginate ul.pagination li.previous > span {
+        font-size: 0;
+    }
+
+    .dataTables_wrapper .dataTables_paginate ul.pagination li.next > a,
+    .dataTables_wrapper .dataTables_paginate ul.pagination li.next > span {
+        font-size: 0;
+    }
+
+    .dataTables_wrapper .dataTables_paginate ul.pagination li.previous > a::before,
+    .dataTables_wrapper .dataTables_paginate ul.pagination li.previous > span::before,
+    .dataTables_wrapper .dataTables_paginate ul.pagination li.next > a::after,
+    .dataTables_wrapper .dataTables_paginate ul.pagination li.next > span::after {
+        margin: 0;
+    }
+}

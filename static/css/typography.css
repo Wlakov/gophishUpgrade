@@ -1,0 +1,36 @@
+/* Shared application typography. Icon and code fonts are restored below. */
+:root {
+    --gophish-font: "Inter", "Segoe UI", Roboto, Arial, sans-serif;
+}
+
+html,
+body,
+body * {
+    font-family: var(--gophish-font) !important;
+}
+
+/* Keep icon glyphs mapped to their bundled icon fonts. */
+body .fa,
+body [class^="fa-"],
+body [class*=" fa-"] {
+    font-family: FontAwesome !important;
+}
+
+body .glyphicon,
+body [class^="glyphicon-"],
+body [class*=" glyphicon-"] {
+    font-family: "Glyphicons Halflings" !important;
+}
+
+body [class^="fui-"],
+body [class*=" fui-"] {
+    font-family: "Flat-UI-Icons" !important;
+}
+
+body pre,
+body code,
+body kbd,
+body samp,
+body textarea.cke_source {
+    font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace !important;
+}
