@@ -79,6 +79,24 @@ var statuses = {
     "Campaign Created": {
         label: "label-success",
         icon: "fa-rocket"
+    },
+    "Training Viewed": {
+        color: "#8e44ad",
+        label: "label-info",
+        icon: "fa-book",
+        point: "ct-point-opened"
+    },
+    "Training Quiz Passed": {
+        color: "#27ae60",
+        label: "label-success",
+        icon: "fa-check",
+        point: "ct-point-reported"
+    },
+    "Training Quiz Failed": {
+        color: "#c0392b",
+        label: "label-danger",
+        icon: "fa-times",
+        point: "ct-point-error"
     }
 }
 
@@ -90,8 +108,34 @@ var statsMapping = {
     "submitted_data": "Submitted Data",
 }
 
+var statLabels = {
+    "Email Sent": "Надіслано листів",
+    "Email Opened": "Відкрито листів",
+    "Email Reported": "Повідомлено про листи",
+    "Clicked Link": "Переходів за посиланням",
+    "Submitted Data": "Введено даних"
+}
+
+var statusLabels = {
+    "In progress": "Виконується",
+    "Queued": "У черзі",
+    "Completed": "Завершено",
+    "Emails Sent": "Листи надіслано",
+    "Email Sent": "Лист надіслано",
+    "Scheduled": "Заплановано",
+    "Retrying": "Повторна спроба",
+    "Sending": "Надсилання",
+    "Training Viewed": "Навчання переглянуто",
+    "Training Quiz Passed": "Навчальний тест пройдено",
+    "Training Quiz Failed": "Навчальний тест не пройдено"
+}
+
+function translateStatus(status) {
+    return statusLabels[status] || status || "Невідомо"
+}
+
 function deleteCampaign(idx) {
-    if (confirm("Delete " + campaigns[idx].name + "?")) {
+    if (confirm("Видалити кампанію «" + campaigns[idx].name + "»?")) {
         api.campaignId.delete(campaigns[idx].id)
             .success(function (data) {
                 successFlash(data.message)
@@ -183,7 +227,7 @@ function generateStatsPieCharts(campaigns) {
         }
         status_label = statsMapping[status]
         stats_data.push({
-            name: status_label,
+            name: statLabels[status_label],
             y: Math.floor((count / total) * 100),
             count: count
         })
@@ -193,7 +237,7 @@ function generateStatsPieCharts(campaigns) {
         })
         var stats_chart = renderPieChart({
             elemId: status + '_chart',
-            title: status_label,
+            title: statLabels[status_label],
             name: status,
             data: stats_data,
             colors: [statuses[status_label].color, "#dddddd"]
@@ -226,7 +270,7 @@ function generateTimelineChart(campaigns) {
             type: 'areaspline'
         },
         title: {
-            text: 'Phishing Success Overview'
+            text: 'Огляд результативності фішингових кампаній'
         },
         xAxis: {
             type: 'datetime',
@@ -243,13 +287,13 @@ function generateTimelineChart(campaigns) {
             min: 0,
             max: 100,
             title: {
-                text: "% of Success"
+                text: "% результативності"
             }
         },
         tooltip: {
             formatter: function () {
-                return Highcharts.dateFormat('%A, %b %d %l:%M:%S %P', new Date(this.x)) +
-                    '<br>' + this.point.name + '<br>% Success: <b>' + this.y + '%</b>'
+                return Highcharts.dateFormat('%d.%m.%Y %H:%M:%S', new Date(this.x)) +
+                    '<br>' + escapeHtml(this.point.name) + '<br>Результативність: <b>' + this.y + '%</b>'
             }
         },
         legend: {
@@ -328,16 +372,16 @@ $(document).ready(function () {
                 });
                 campaignRows = []
                 $.each(campaigns, function (i, campaign) {
-                    var campaign_date = moment(campaign.created_date).format('MMMM Do YYYY, h:mm:ss a')
+                    var campaign_date = moment(campaign.created_date).format('DD.MM.YYYY HH:mm:ss')
                     var label = statuses[campaign.status].label || "label-default";
                     //section for tooltips on the status of a campaign to show some quick stats
                     var launchDate;
                     if (moment(campaign.launch_date).isAfter(moment())) {
-                        launchDate = "Scheduled to start: " + moment(campaign.launch_date).format('MMMM Do YYYY, h:mm:ss a')
-                        var quickStats = launchDate + "<br><br>" + "Number of recipients: " + campaign.stats.total
+                        launchDate = "Початок заплановано: " + moment(campaign.launch_date).format('DD.MM.YYYY HH:mm:ss')
+                        var quickStats = launchDate + "<br><br>" + "Кількість отримувачів: " + campaign.stats.total
                     } else {
-                        launchDate = "Launch Date: " + moment(campaign.launch_date).format('MMMM Do YYYY, h:mm:ss a')
-                        var quickStats = launchDate + "<br><br>" + "Number of recipients: " + campaign.stats.total + "<br><br>" + "Emails opened: " + campaign.stats.opened + "<br><br>" + "Emails clicked: " + campaign.stats.clicked + "<br><br>" + "Submitted Credentials: " + campaign.stats.submitted_data + "<br><br>" + "Errors : " + campaign.stats.error + "<br><br>" + "Reported : " + campaign.stats.email_reported
+                        launchDate = "Дата запуску: " + moment(campaign.launch_date).format('DD.MM.YYYY HH:mm:ss')
+                        var quickStats = launchDate + "<br><br>" + "Кількість отримувачів: " + campaign.stats.total + "<br><br>" + "Відкрито листів: " + campaign.stats.opened + "<br><br>" + "Переходів: " + campaign.stats.clicked + "<br><br>" + "Введено даних: " + campaign.stats.submitted_data + "<br><br>" + "Помилок: " + campaign.stats.error + "<br><br>" + "Повідомлень: " + campaign.stats.email_reported
                     }
                     // Add it to the list
                     campaignRows.push([
@@ -348,11 +392,11 @@ $(document).ready(function () {
                         campaign.stats.clicked,
                         campaign.stats.submitted_data,
                         campaign.stats.email_reported,
-                        "<span class=\"label " + label + "\" data-toggle=\"tooltip\" data-placement=\"right\" data-html=\"true\" title=\"" + quickStats + "\">" + campaign.status + "</span>",
-                        "<div class='pull-right'><a class='btn btn-primary' href='/campaigns/" + campaign.id + "' data-toggle='tooltip' data-placement='left' title='View Results'>\
+                        "<span class=\"label " + label + "\" data-toggle=\"tooltip\" data-placement=\"right\" data-html=\"true\" title=\"" + quickStats + "\">" + translateStatus(campaign.status) + "</span>",
+                        "<div class='pull-right'><a class='btn btn-primary' href='/campaigns/" + campaign.id + "' data-toggle='tooltip' data-placement='left' title='Переглянути результати'>\
                     <i class='fa fa-bar-chart'></i>\
                     </a>\
-                    <button class='btn btn-danger' onclick='deleteCampaign(" + i + ")' data-toggle='tooltip' data-placement='left' title='Delete Campaign'>\
+                    <button class='btn btn-danger' onclick='deleteCampaign(" + i + ")' data-toggle='tooltip' data-placement='left' title='Видалити кампанію'>\
                     <i class='fa fa-trash-o'></i>\
                     </button></div>"
                     ])
@@ -367,6 +411,6 @@ $(document).ready(function () {
             }
         })
         .error(function () {
-            errorFlash("Error fetching campaigns")
+            errorFlash("Помилка завантаження кампаній")
         })
 })

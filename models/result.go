@@ -24,18 +24,21 @@ type mmGeoPoint struct {
 // Result contains the fields for a result object,
 // which is a representation of a target in a campaign.
 type Result struct {
-	Id           int64     `json:"-"`
-	CampaignId   int64     `json:"-"`
-	ScenarioId   int64     `json:"scenario_id,omitempty"`
-	UserId       int64     `json:"-"`
-	RId          string    `json:"id"`
-	Status       string    `json:"status" sql:"not null"`
-	IP           string    `json:"ip"`
-	Latitude     float64   `json:"latitude"`
-	Longitude    float64   `json:"longitude"`
-	SendDate     time.Time `json:"send_date"`
-	Reported     bool      `json:"reported" sql:"not null"`
-	ModifiedDate time.Time `json:"modified_date"`
+	Id                int64     `json:"-"`
+	CampaignId        int64     `json:"-"`
+	ScenarioId        int64     `json:"scenario_id,omitempty"`
+	UserId            int64     `json:"-"`
+	RId               string    `json:"id"`
+	Status            string    `json:"status" sql:"not null"`
+	IP                string    `json:"ip"`
+	Latitude          float64   `json:"latitude"`
+	Longitude         float64   `json:"longitude"`
+	SendDate          time.Time `json:"send_date"`
+	Reported          bool      `json:"reported" sql:"not null"`
+	TrainingViewed    bool      `json:"training_viewed" sql:"not null"`
+	TrainingCompleted bool      `json:"training_completed" sql:"not null"`
+	TrainingPassed    bool      `json:"training_passed" sql:"not null"`
+	ModifiedDate      time.Time `json:"modified_date"`
 	BaseRecipient
 }
 
@@ -145,6 +148,37 @@ func (r *Result) HandleEmailReport(details EventDetails) error {
 	}
 	r.Reported = true
 	r.ModifiedDate = event.Time
+	return db.Save(r).Error
+}
+
+// HandleTrainingViewed records that the recipient opened the educational module.
+func (r *Result) HandleTrainingViewed() error {
+	if r.TrainingViewed {
+		return nil
+	}
+	if _, err := r.createEvent(EventTrainingViewed, nil); err != nil {
+		return err
+	}
+	r.TrainingViewed = true
+	r.ModifiedDate = time.Now().UTC()
+	return db.Save(r).Error
+}
+
+// HandleTrainingQuiz records completion of the educational module without
+// storing the submitted answer or any sensitive form data.
+func (r *Result) HandleTrainingQuiz(passed bool) error {
+	message := EventTrainingQuizFailed
+	if passed {
+		message = EventTrainingQuizPassed
+	}
+	if _, err := r.createEvent(message, nil); err != nil {
+		return err
+	}
+	r.TrainingCompleted = true
+	// Once a recipient passes the module, later retries must not erase that
+	// achievement from campaign statistics.
+	r.TrainingPassed = r.TrainingPassed || passed
+	r.ModifiedDate = time.Now().UTC()
 	return db.Save(r).Error
 }
 

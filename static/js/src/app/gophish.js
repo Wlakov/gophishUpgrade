@@ -54,6 +54,79 @@ function escapeHtml(text) {
 }
 window.escapeHtml = escapeHtml
 
+// Локаль для календаря та форматування дат українською мовою.
+moment.defineLocale("uk-custom", {
+    months: ["січень", "лютий", "березень", "квітень", "травень", "червень", "липень", "серпень", "вересень", "жовтень", "листопад", "грудень"],
+    monthsShort: ["січ", "лют", "бер", "квіт", "трав", "черв", "лип", "серп", "вер", "жовт", "лист", "груд"],
+    weekdays: ["неділя", "понеділок", "вівторок", "середа", "четвер", "п’ятниця", "субота"],
+    weekdaysShort: ["нд", "пн", "вт", "ср", "чт", "пт", "сб"],
+    weekdaysMin: ["нд", "пн", "вт", "ср", "чт", "пт", "сб"],
+    week: { dow: 1, doy: 4 },
+    longDateFormat: {
+        LT: "HH:mm", LTS: "HH:mm:ss", L: "DD.MM.YYYY", LL: "D MMMM YYYY",
+        LLL: "D MMMM YYYY HH:mm", LLLL: "dddd, D MMMM YYYY HH:mm"
+    },
+    meridiem: function () { return "" },
+    meridiemParse: /сут./i,
+    isPM: function () { return false }
+})
+moment.locale("uk-custom")
+
+// Українське відмінювання лічильників: 1 кампанія, 2 кампанії, 5 кампаній.
+function pluralizeUk(value, one, few, many) {
+    var number = Math.abs(Number(value)) || 0
+    var mod100 = number % 100
+    var mod10 = number % 10
+    if (mod100 >= 11 && mod100 <= 14) return many
+    if (mod10 === 1) return one
+    if (mod10 >= 2 && mod10 <= 4) return few
+    return many
+}
+function countLabelUk(value, one, few, many) {
+    return value + " " + pluralizeUk(value, one, few, many)
+}
+window.pluralizeUk = pluralizeUk
+window.countLabelUk = countLabelUk
+
+var ukMonths = ["січня", "лютого", "березня", "квітня", "травня", "червня", "липня", "серпня", "вересня", "жовтня", "листопада", "грудня"]
+function formatDateUk(value, includeSeconds) {
+    var date = moment(value)
+    if (!date.isValid()) return "Не вказано"
+    var result = date.format("DD") + " " + ukMonths[date.month()] + " " + date.format("YYYY HH:mm")
+    return includeSeconds === false ? result : result + ":" + date.format("ss")
+}
+window.formatDateUk = formatDateUk
+function formatDateUkNumeric(value) {
+    var date = moment(value)
+    return date.isValid() ? date.format("DD.MM.YYYY HH:mm:ss") : "Не вказано"
+}
+window.formatDateUkNumeric = formatDateUkNumeric
+
+// Shared Ukrainian labels for every DataTables-powered list in the platform.
+// Keeping this in the common application bundle prevents individual pages
+// from falling back to the English defaults such as "Show entries".
+if ($.fn.dataTable) {
+    $.extend(true, $.fn.dataTable.defaults, {
+        language: {
+            lengthMenu: "Показати _MENU_ записів",
+            search: "Пошук:",
+            zeroRecords: "Записів не знайдено",
+            info: "Показано _START_–_END_ із _TOTAL_ записів",
+            infoEmpty: "Немає записів для відображення",
+            infoFiltered: "(відфільтровано з _MAX_ записів)",
+            emptyTable: "Таблиця порожня",
+            loadingRecords: "Завантаження...",
+            processing: "Обробка...",
+            paginate: {
+                first: "Перша",
+                last: "Остання",
+                next: "Далі",
+                previous: "Назад"
+            }
+        }
+    })
+}
+
 $(document).ready(function () {
     var currentPath = window.location.pathname.replace(/\/$/, "") || "/"
     $(".app-sidebar-nav a[data-nav-path]").each(function () {
@@ -347,7 +420,7 @@ $(document).ready(function () {
             $this.addClass('active');
         }
     })
-    $.fn.dataTable.moment('MMMM Do YYYY, h:mm:ss a');
+    $.fn.dataTable.moment('DD.MM.YYYY HH:mm:ss');
     // Setup tooltips
     $('[data-toggle="tooltip"]').tooltip()
 });

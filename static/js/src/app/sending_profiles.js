@@ -26,12 +26,12 @@ function sendTestEmail() {
         }
     }
     btnHtml = $("#sendTestModalSubmit").html()
-    $("#sendTestModalSubmit").html('<i class="fa fa-spinner fa-spin"></i> Sending')
+    $("#sendTestModalSubmit").html('<i class="fa fa-spinner fa-spin"></i> Надсилання')
     // Send the test email
     api.send_test_email(test_email_request)
         .success(function (data) {
             $("#sendTestEmailModal\\.flashes").empty().append("<div style=\"text-align:center\" class=\"alert alert-success\">\
-	    <i class=\"fa fa-check-circle\"></i> Email Sent!</div>")
+	    <i class=\"fa fa-check-circle\"></i> Лист надіслано!</div>")
             $("#sendTestModalSubmit").html(btnHtml)
         })
         .error(function (data) {
@@ -63,7 +63,7 @@ function save(idx) {
         profile.id = profiles[idx].id
         api.SMTPId.put(profile)
             .success(function (data) {
-                successFlash("Profile edited successfully!")
+                successFlash("Профіль успішно оновлено!")
                 load()
                 dismiss()
             })
@@ -74,7 +74,7 @@ function save(idx) {
         // Submit the profile
         api.SMTP.post(profile)
             .success(function (data) {
-                successFlash("Profile added successfully!")
+                successFlash("Профіль успішно додано!")
                 load()
                 dismiss()
             })
@@ -99,18 +99,18 @@ function dismiss() {
 
 var dismissSendTestEmailModal = function () {
     $("#sendTestEmailModal\\.flashes").empty()
-    $("#sendTestModalSubmit").html("<i class='fa fa-envelope'></i> Send")
+    $("#sendTestModalSubmit").html("<i class='fa fa-envelope'></i> Надіслати")
 }
 
 
 var deleteProfile = function (idx) {
     Swal.fire({
-        title: "Are you sure?",
+        title: "Ви впевнені?",
         text: "This will delete the sending profile. This can't be undone!",
         type: "warning",
         animation: false,
         showCancelButton: true,
-        confirmButtonText: "Delete " + escapeHtml(profiles[idx].name),
+        confirmButtonText: "Видалити " + escapeHtml(profiles[idx].name),
         confirmButtonColor: "#428bca",
         reverseButtons: true,
         allowOutsideClick: false,
@@ -208,14 +208,14 @@ function load() {
                     profileRows.push([
                         escapeHtml(profile.name),
                         profile.interface_type,
-                        moment(profile.modified_date).format('MMMM Do YYYY, h:mm:ss a'),
-                        user.can_modify_objects ? "<div class='pull-right'><span data-toggle='modal' data-backdrop='static' data-target='#modal'><button class='btn btn-primary' data-toggle='tooltip' data-placement='left' title='Edit Profile' onclick='edit(" + i + ")'>\
+                        formatDateUkNumeric(profile.modified_date),
+                        user.can_modify_objects ? "<div class='pull-right'><span data-toggle='modal' data-backdrop='static' data-target='#modal'><button class='btn btn-primary' data-toggle='tooltip' data-placement='left' title='Редагувати профіль' onclick='edit(" + i + ")'>\
                     <i class='fa fa-pencil'></i>\
                     </button></span>\
-		    <span data-toggle='modal' data-target='#modal'><button class='btn btn-primary' data-toggle='tooltip' data-placement='left' title='Copy Profile' onclick='copy(" + i + ")'>\
+		    <span data-toggle='modal' data-target='#modal'><button class='btn btn-primary' data-toggle='tooltip' data-placement='left' title='Копіювати профіль' onclick='copy(" + i + ")'>\
                     <i class='fa fa-copy'></i>\
                     </button></span>\
-                    <button class='btn btn-danger' data-toggle='tooltip' data-placement='left' title='Delete Profile' onclick='deleteProfile(" + i + ")'>\
+                    <button class='btn btn-danger' data-toggle='tooltip' data-placement='left' title='Видалити профіль' onclick='deleteProfile(" + i + ")'>\
                     <i class='fa fa-trash-o'></i>\
                     </button></div>" : ""
                     ])

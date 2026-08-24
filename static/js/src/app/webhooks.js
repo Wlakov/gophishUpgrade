@@ -22,7 +22,7 @@ const saveWebhook = (id) => {
                 dismiss();
                 load();
                 $("#modal").modal("hide");
-                successFlash(`Webhook "${escapeHtml(wh.name)}" has been updated successfully!`);
+                successFlash(`Вебхук «${escapeHtml(wh.name)}» успішно оновлено!`);
             })
             .error(function(data) {
                 modalError(data.responseJSON.message)
@@ -33,7 +33,7 @@ const saveWebhook = (id) => {
                 load();
                 dismiss();
                 $("#modal").modal("hide");
-                successFlash(`Webhook "${escapeHtml(wh.name)}" has been created successfully!`);
+                successFlash(`Вебхук «${escapeHtml(wh.name)}» успішно створено!`);
             })
             .error(function(data) {
                 modalError(data.responseJSON.message)
@@ -110,7 +110,7 @@ const deleteWebhook = (id) => {
         return;
     }
     Swal.fire({
-        title: "Are you sure?",
+        title: "Ви впевнені?",
         text: `This will delete the webhook '${escapeHtml(wh.name)}'`,
         type: "warning",
         animation: false,
@@ -136,8 +136,8 @@ const deleteWebhook = (id) => {
     }).then(function(result) {
         if (result.value) {
             Swal.fire(
-                "Webhook Deleted!",
-                `The webhook has been deleted!`,
+                "Вебхук видалено!",
+                `Вебхук успішно видалено.`,
                 "success"
             );
         }
@@ -153,7 +153,7 @@ const pingUrl = (btn, whId) => {
     api.webhookId.ping(whId)
         .success(function(wh) {
             btn.disabled = false;
-            successFlash(`Ping of "${escapeHtml(wh.name)}" webhook succeeded.`);
+            successFlash(`Перевірку вебхука «${escapeHtml(wh.name)}» успішно виконано.`);
         })
         .error(function(data) {
             btn.disabled = false;
@@ -161,7 +161,7 @@ const pingUrl = (btn, whId) => {
             if (!wh) {
                 return
             }
-            errorFlash(`Ping of "${escapeHtml(wh.name)}" webhook failed: "${escapeHtml(data.responseJSON.message)}"`)
+            errorFlash(`Не вдалося перевірити вебхук «${escapeHtml(wh.name)}»: «${escapeHtml(data.responseJSON.message)}»`)
         });
 };
 

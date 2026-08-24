@@ -9,8 +9,7 @@
     <ul class="nav nav-tabs" role="tablist">
         <li class="active" role="mainSettings"><a href="#mainSettings" aria-controls="mainSettings" role="tab"
                 data-toggle="tab">Обліковий запис</a></li>
-        <li role="uiSettings"><a href="#uiSettings" aria-controls="uiSettings" role="tab" data-toggle="tab">UI
-                Налаштування інтерфейсу</a></li>
+        <li role="uiSettings"><a href="#uiSettings" aria-controls="uiSettings" role="tab" data-toggle="tab">Налаштування інтерфейсу</a></li>
         {{if .ModifyObjects}}
         <li role="reportingSettings"><a href="#reportingSettings" aria-controls="reportingSettings" role="tab" id="reporttab"
             data-toggle="tab">Звітування</a></li>
@@ -179,7 +178,7 @@
                 <div class="row">
                     <label for="folder" class="col-sm-2 control-label form-label" data-toggle="tooltip" title="Як часто перевіряти нові листи. Мінімум — 30 секунд.">Період перевірки:</label>
                         <div class="col-md-6">
-                            <input type="number" id="imapfreq" name="imapfreq" placeholder="Leave blank for default of every 60 seconds."
+                            <input type="number" id="imapfreq" name="imapfreq" placeholder="Залиште порожнім: за замовчуванням кожні 60 секунд"
                                 class="form-control" />
                         </div>
                     </div>

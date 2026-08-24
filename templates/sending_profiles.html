@@ -40,7 +40,7 @@
         <div class="modal-content">
             <!-- New Template Modal -->
             <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close" onclick="dismiss()"><span
+                <button type="button" class="close" data-dismiss="modal" aria-label="Закрити" onclick="dismiss()"><span
                         aria-hidden="true">&times;</span></button>
                 <h4 class="modal-title" id="profileModalLabel">Новий профіль відправлення</h4>
             </div>
@@ -53,7 +53,7 @@
                         <label class="control-label" for="interface_type">Тип інтерфейсу:</label>
                         <input type="text" class="form-control" value="SMTP" id="interface_type" disabled />
                         <label class="control-label" for="from">SMTP-відправник: <i class="fa fa-question-circle"
-                                data-toggle="tooltip" data-placement="right" title="Set this to an email address from your sending domain to bypass SPF-checks. You can set the Envelope Sender in Email Templates. The Envelope Sender is shown to the user."></i></label>
+                                data-toggle="tooltip" data-placement="right" title="Вкажіть адресу з домену відправлення, щоб обійти перевірку SPF. Відправника конверта можна задати в шаблоні листа."></i></label>
                         <input type="text" class="form-control" placeholder="test@example.com" id="from"
                             required />
                         <label class="control-label" for="host">Сервер:</label>
@@ -65,11 +65,11 @@
                         <div class="checkbox checkbox-primary">
                             <input id="ignore_cert_errors" type="checkbox" checked>
                             <label for="ignore_cert_errors">Ігнорувати помилки сертифіката <i class="fa fa-question-circle"
-                                    data-toggle="tooltip" data-placement="right" title="Ignore common certificate errors such as self-signed certs (exposes you to MiTM attacks - use carefully!)"></i></label>
+                                    data-toggle="tooltip" data-placement="right" title="Ігнорувати типові помилки сертифікатів, зокрема самопідписані. Це підвищує ризик атак MiTM — використовуйте обережно."></i></label>
                         </div>
                     </div>
                     <fieldset class="form-group">
-                        <label class="control-label input-group">Email Headers:</label>
+                        <label class="control-label input-group">Заголовки листа:</label>
                         <div class="col-md-4">
                             <input type="text" class="form-control" name="headerKey" id="headerKey" placeholder="X-Custom-Header">
                         </div>
@@ -84,8 +84,8 @@
                     <table id="headersTable" class="table table-hover table-striped table-condensed">
                         <thead>
                             <tr>
-                                <th>Header</th>
-                                <th>Value</th>
+                                <th>Заголовок</th>
+                                <th>Значення</th>
                                 <th class="no-sort"></th>
                             </tr>
                         </thead>
@@ -109,34 +109,34 @@
         <div class="modal-content">
             <!-- New Email Modal -->
             <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                <h4 class="modal-title" id="sendTestEmailModalTitle">Send Test Email</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Закрити"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="sendTestEmailModalTitle">Надіслати тестовий лист</h4>
             </div>
             <div class="modal-body">
                 <div class="row" id="sendTestEmailModal.flashes"></div>
                 <div class="row">
                     <div class="col-sm-12">
-                        <label class="control-label" for="to">Send Test Email to:</label>
+                        <label class="control-label" for="to">Надіслати тестовий лист на:</label>
                     </div>
                     <br>
                     <div class="col-sm-2">
-                        <input type="text" class="form-control" placeholder="First Name" name="to_first_name">
+                        <input type="text" class="form-control" placeholder="Ім’я" name="to_first_name">
                     </div>
                     <div class="col-sm-2">
-                        <input type="text" class="form-control" placeholder="Last Name" name="to_last_name">
+                        <input type="text" class="form-control" placeholder="Прізвище" name="to_last_name">
                     </div>
                     <div class="col-sm-4">
-                        <input type="email" class="form-control" placeholder="Email" name="to_email" required>
+                        <input type="email" class="form-control" placeholder="Електронна пошта" name="to_email" required>
                     </div>
                     <div class="col-sm-4">
-                        <input type="text" class="form-control" placeholder="Position" name="to_position">
+                        <input type="text" class="form-control" placeholder="Посада" name="to_position">
                     </div>
                 </div>
             </div>
             <div class="modal-footer">
-                <button type="button" data-dismiss="modal" class="btn btn-default">Cancel</button>
+                <button type="button" data-dismiss="modal" class="btn btn-default">Скасувати</button>
                 <button type="button" class="btn btn-primary" id="sendTestModalSubmit" onclick="sendTestEmail()"><i
-                        class="fa fa-envelope"></i> Send</button>
+                        class="fa fa-envelope"></i> Надіслати</button>
             </div>
         </div>
     </div>

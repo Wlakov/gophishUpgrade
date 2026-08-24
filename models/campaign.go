@@ -32,12 +32,13 @@ type Campaign struct {
 	// GroupsInferred is true when a legacy campaign did not preserve its
 	// selected groups. In that case the groups are matched to campaign
 	// recipients so the administrator still has useful context.
-	GroupsInferred bool               `json:"groups_inferred,omitempty" gorm:"-"`
-	Events         []Event            `json:"timeline,omitempty"`
-	SMTPId         int64              `json:"-"`
-	SMTP           SMTP               `json:"smtp"`
-	Scenarios      []PhishingScenario `json:"scenarios,omitempty" gorm:"-"`
-	URL            string             `json:"url"`
+	GroupsInferred  bool               `json:"groups_inferred,omitempty" gorm:"-"`
+	Events          []Event            `json:"timeline,omitempty"`
+	SMTPId          int64              `json:"-"`
+	SMTP            SMTP               `json:"smtp"`
+	Scenarios       []PhishingScenario `json:"scenarios,omitempty" gorm:"-"`
+	URL             string             `json:"url"`
+	TrainingEnabled bool               `json:"training_enabled"`
 }
 
 // CampaignGroup preserves the groups selected when a campaign is created so
@@ -77,13 +78,16 @@ type CampaignSummary struct {
 
 // CampaignStats is a struct representing the statistics for a single campaign
 type CampaignStats struct {
-	Total         int64 `json:"total"`
-	EmailsSent    int64 `json:"sent"`
-	OpenedEmail   int64 `json:"opened"`
-	ClickedLink   int64 `json:"clicked"`
-	SubmittedData int64 `json:"submitted_data"`
-	EmailReported int64 `json:"email_reported"`
-	Error         int64 `json:"error"`
+	Total             int64 `json:"total"`
+	EmailsSent        int64 `json:"sent"`
+	OpenedEmail       int64 `json:"opened"`
+	ClickedLink       int64 `json:"clicked"`
+	SubmittedData     int64 `json:"submitted_data"`
+	EmailReported     int64 `json:"email_reported"`
+	Error             int64 `json:"error"`
+	TrainingViewed    int64 `json:"training_viewed"`
+	TrainingCompleted int64 `json:"training_completed"`
+	TrainingPassed    int64 `json:"training_passed"`
 }
 
 // ScenarioStats contains the funnel statistics for one scenario in a campaign.
@@ -394,6 +398,18 @@ func getResultStats(query *gorm.DB) (CampaignStats, error) {
 	// Every opened email event implies the email was sent
 	s.EmailsSent += s.OpenedEmail
 	err = query.Where("status=?", Error).Count(&s.Error).Error
+	if err != nil {
+		return s, err
+	}
+	if err = query.Where("training_viewed=?", true).Count(&s.TrainingViewed).Error; err != nil {
+		return s, err
+	}
+	if err = query.Where("training_completed=?", true).Count(&s.TrainingCompleted).Error; err != nil {
+		return s, err
+	}
+	if err = query.Where("training_passed=?", true).Count(&s.TrainingPassed).Error; err != nil {
+		return s, err
+	}
 	return s, err
 }
 

@@ -53,7 +53,7 @@ $(document).ready(function () {
             return false
         }
         if (isNaN(imapSettings.port) || imapSettings.port <1 || imapSettings.port > 65535  ){ 
-            errorFlash("Invalid IMAP Port")
+            errorFlash("Некоректний IMAP-порт")
             document.body.scrollTop = 0;
             document.documentElement.scrollTop = 0;
             return false
@@ -64,9 +64,9 @@ $(document).ready(function () {
 
         api.IMAP.post(imapSettings).done(function (data) {
                 if (data.success == true) {
-                    successFlashFade("Successfully updated IMAP settings.", 2)
+                    successFlashFade("Налаштування IMAP успішно оновлено.", 2)
                 } else {
-                    errorFlash("Unable to update IMAP settings.")
+                    errorFlash("Не вдалося оновити налаштування IMAP.")
                 }
             })
             .success(function (data){
@@ -96,19 +96,19 @@ $(document).ready(function () {
 
         //To avoid unmarshalling error in controllers/api/imap.go. It would fail gracefully, but with a generic error. 
         if (server.host == ""){
-            errorFlash("No IMAP Host specified")
+            errorFlash("IMAP-сервер не вказано")
             document.body.scrollTop = 0;
             document.documentElement.scrollTop = 0;
             return false
         }
         if (server.port == ""){
-            errorFlash("No IMAP Port specified")
+            errorFlash("IMAP-порт не вказано")
             document.body.scrollTop = 0;
             document.documentElement.scrollTop = 0;
             return false
         }
         if (isNaN(server.port) || server.port <1 || server.port > 65535  ){
-            errorFlash("Invalid IMAP Port")
+            errorFlash("Некоректний IMAP-порт")
             document.body.scrollTop = 0;
             document.documentElement.scrollTop = 0;
             return false
@@ -129,23 +129,23 @@ $(document).ready(function () {
         $('#lastlogin').attr("disabled", true);
         $('#imapfreq').attr("disabled", true);
         $("#validateimap").attr("disabled", true);  
-        $("#validateimap").html("<i class='fa fa-circle-o-notch fa-spin'></i> Testing...");
+        $("#validateimap").html("<i class='fa fa-circle-o-notch fa-spin'></i> Перевірка...");
         
         api.IMAP.validate(server).done(function(data) {
             if (data.success == true) {
                 Swal.fire({
-                    title: "Success",
-                    html: "Logged into <b>" + escapeHtml($("#imaphost").val()) + "</b>",
+                    title: "Успішно",
+                    html: "Вхід до <b>" + escapeHtml($("#imaphost").val()) + "</b> виконано",
                     type: "success",
                 })
             } else {
                 Swal.fire({
-                    title: "Failed!",
-                    html: "Unable to login to <b>" + escapeHtml($("#imaphost").val()) + "</b>.",
+                    title: "Помилка",
+                    html: "Не вдалося ввійти до <b>" + escapeHtml($("#imaphost").val()) + "</b>.",
                     type: "error",
                     showCancelButton: true,
                     cancelButtonText: "Закрити",
-                    confirmButtonText: "More Info",
+                    confirmButtonText: "Докладніше",
                     confirmButtonColor: "#428bca",
                     allowOutsideClick: false,
                 }).then(function(result) {
@@ -161,8 +161,8 @@ $(document).ready(function () {
           })
           .fail(function() {
             Swal.fire({
-                title: "Failed!",
-                text: "An unecpected error occured.",
+                title: "Помилка",
+                text: "Сталася непередбачена помилка.",
                 type: "error",
             })
           })
@@ -220,7 +220,7 @@ $(document).ready(function () {
                 $("#restrictdomain").val(imap.restrict_domain)
                 $('#deletecampaign').prop('checked', imap.delete_reported_campaign_email)
                 $('#lastloginraw').val(imap.last_login)
-                $('#lastlogin').val(moment.utc(imap.last_login).fromNow())
+                $('#lastlogin').val(formatDateUk(moment.utc(imap.last_login).local()))
                 $('#imapfreq').val(imap.imap_freq)
             }  
 

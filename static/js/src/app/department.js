@@ -27,6 +27,10 @@ const departmentStatusClass = (status) => {
     }
 }
 
+const departmentStatusLabel = (status) => ({
+    "completed": "Завершено", "in progress": "Виконується", "emails sent": "Листи надіслано", "queued": "У черзі"
+}[String(status || "").toLowerCase()] || status || "Створено")
+
 const departmentMetric = (icon, value, label, modifier) =>
     "<div class='department-metric " + (modifier || "") + "'><i class='fa " + icon + "'></i><div><strong>" + value +
     "</strong><span>" + escapeHtml(label) + "</span></div></div>"
@@ -90,19 +94,19 @@ const renderDepartment = (department) => {
         "<section class='department-overview'><div class='department-lead'><div class='department-lead-avatar'>" + departmentInitials(manager.username) +
         "</div><div><span>Керівник відділу</span><h2>" + escapeHtml(manager.username || "Не визначено") + "</h2><p>Матеріали відділу зберігаються у спільному просторі. Редактори працюють із ними, а спостерігачі мають доступ лише для перегляду.</p></div></div>" +
         "<div class='department-overview-metrics'>" +
-        departmentMetric("fa-users", members.length + 1, "учасників", "primary") +
-        departmentMetric("fa-bullhorn", campaigns.length, "кампаній", "info") +
-        departmentMetric("fa-sitemap", scenarios.length, "сценаріїв", "warning") +
-        departmentMetric("fa-users", groups.length, "груп отримувачів", "success") +
+        departmentMetric("fa-users", members.length + 1, pluralizeUk(members.length + 1, "учасник", "учасники", "учасників"), "primary") +
+        departmentMetric("fa-bullhorn", campaigns.length, pluralizeUk(campaigns.length, "кампанія", "кампанії", "кампаній"), "info") +
+        departmentMetric("fa-sitemap", scenarios.length, pluralizeUk(scenarios.length, "сценарій", "сценарії", "сценаріїв"), "warning") +
+        departmentMetric("fa-users", groups.length, pluralizeUk(groups.length, "група отримувачів", "групи отримувачів", "груп отримувачів"), "success") +
         "</div></section>" +
-        "<section class='department-team-section'><div class='department-section-heading'><div><span>Склад відділу</span><h3>Ролі та доступ учасників</h3></div><div class='department-role-summary'><span><b>" + editors + "</b> редакторів</span><span><b>" + viewers + "</b> спостерігачів</span></div></div>" +
+        "<section class='department-team-section'><div class='department-section-heading'><div><span>Склад відділу</span><h3>Ролі та доступ учасників</h3></div><div class='department-role-summary'><span><b>" + editors + "</b> " + pluralizeUk(editors, "редактор", "редактори", "редакторів") + "</span><span><b>" + viewers + "</b> " + pluralizeUk(viewers, "спостерігач", "спостерігачі", "спостерігачів") + "</span></div></div>" +
         "<div class='department-members-grid'>" + workspaces.map(workspace => departmentMemberCard(workspace, manager.id)).join("") + "</div></section>" +
         "<section class='department-resources-section'><div class='department-section-heading'><div><span>Спільний простір</span><h3>Матеріали та результати відділу</h3></div><div class='department-resource-search'><i class='fa fa-search'></i><input type='search' id='departmentFilter' placeholder='Пошук у матеріалах і складі відділу'></div></div>" +
         "<div class='department-resource-grid'>" +
         departmentResourceCard("campaigns", "fa-bullhorn", "Кампанії", campaigns, (campaign, index) =>
-            departmentResourceItem("fa-bullhorn", campaign.name, campaign.status || "Створено", index).replace("<strong>", "<strong><span class='label label-" + departmentStatusClass(campaign.status) + " department-status-label'>" + escapeHtml(campaign.status || "Створено") + "</span> ")) +
+            departmentResourceItem("fa-bullhorn", campaign.name, departmentStatusLabel(campaign.status), index).replace("<strong>", "<strong><span class='label label-" + departmentStatusClass(campaign.status) + " department-status-label'>" + escapeHtml(departmentStatusLabel(campaign.status)) + "</span> ")) +
         departmentResourceCard("groups", "fa-users", "Групи отримувачів", groups, (group, index) =>
-            departmentResourceItem("fa-users", group.name, (departmentItems(group.targets).length) + " отримувачів", index)) +
+            departmentResourceItem("fa-users", group.name, countLabelUk(departmentItems(group.targets).length, "отримувач", "отримувачі", "отримувачів"), index)) +
         departmentResourceCard("templates", "fa-envelope", "Шаблони листів", templates, (template, index) =>
             departmentResourceItem("fa-envelope-o", template.name, template.subject || "Без теми", index)) +
         departmentResourceCard("pages", "fa-file-text-o", "Сторінки переходу", pages, (page, index) =>

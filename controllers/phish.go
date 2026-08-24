@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"net"
 	"net/http"
+	"net/url"
 	"strings"
 	"time"
 
@@ -115,6 +116,7 @@ func (ps *PhishingServer) registerRoutes() {
 	router.HandleFunc("/{path:.*}/track", ps.TrackHandler)
 	router.HandleFunc("/{path:.*}/report", ps.ReportHandler)
 	router.HandleFunc("/report", ps.ReportHandler)
+	router.HandleFunc("/training", ps.TrainingHandler)
 	router.HandleFunc("/{path:.*}", ps.PhishHandler)
 
 	// Setup GZIP compression
@@ -259,10 +261,18 @@ func (ps *PhishingServer) PhishHandler(w http.ResponseWriter, r *http.Request) {
 		if err != nil {
 			log.Error(err)
 		}
+		if c.TrainingEnabled && !strings.Contains(strings.ToLower(p.HTML), "<form") {
+			redirectToTraining(w, r, rid)
+			return
+		}
 	case r.Method == "POST":
 		err = rs.HandleFormSubmit(d)
 		if err != nil {
 			log.Error(err)
+		}
+		if c.TrainingEnabled {
+			redirectToTraining(w, r, rid)
+			return
 		}
 	}
 	ptx, err = models.NewPhishingTemplateContext(&c, rs.BaseRecipient, rs.RId)
@@ -271,6 +281,12 @@ func (ps *PhishingServer) PhishHandler(w http.ResponseWriter, r *http.Request) {
 		http.NotFound(w, r)
 	}
 	renderPhishResponse(w, r, ptx, p)
+}
+
+func redirectToTraining(w http.ResponseWriter, r *http.Request, rid string) {
+	query := url.Values{}
+	query.Set(models.RecipientParameter, strings.TrimSuffix(rid, TransparencySuffix))
+	http.Redirect(w, r, "/training?"+query.Encode(), http.StatusFound)
 }
 
 // renderPhishResponse handles rendering the correct response to the phishing

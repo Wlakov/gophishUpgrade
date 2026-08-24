@@ -19,7 +19,7 @@ function save(idx) {
         page.id = pages[idx].id
         api.pageId.put(page)
             .success(function (data) {
-                successFlash("Page edited successfully!")
+                successFlash("Сторінку успішно оновлено!")
                 load()
                 dismiss()
             })
@@ -27,7 +27,7 @@ function save(idx) {
         // Submit the page
         api.pages.post(page)
             .success(function (data) {
-                successFlash("Page added successfully!")
+                successFlash("Сторінку успішно додано!")
                 load()
                 dismiss()
             })
@@ -51,7 +51,7 @@ function dismiss() {
 
 var deletePage = function (idx) {
     Swal.fire({
-        title: "Are you sure?",
+        title: "Ви впевнені?",
         text: "Цільову сторінку буде видалено. Цю дію неможливо скасувати!",
         type: "warning",
         animation: false,
@@ -164,14 +164,14 @@ function load() {
                 $.each(pages, function (i, page) {
                     pageRows.push([
                         escapeHtml(page.name),
-                        moment(page.modified_date).format('MMMM Do YYYY, h:mm:ss a'),
-                        user.can_modify_objects ? "<div class='pull-right'><span data-toggle='modal' data-backdrop='static' data-target='#modal'><button class='btn btn-primary' data-toggle='tooltip' data-placement='left' title='Edit Page' onclick='edit(" + i + ")'>\
+                        formatDateUkNumeric(page.modified_date),
+                        user.can_modify_objects ? "<div class='pull-right'><span data-toggle='modal' data-backdrop='static' data-target='#modal'><button class='btn btn-primary' data-toggle='tooltip' data-placement='left' title='Редагувати сторінку' onclick='edit(" + i + ")'>\
                     <i class='fa fa-pencil'></i>\
                     </button></span>\
-		    <span data-toggle='modal' data-target='#modal'><button class='btn btn-primary' data-toggle='tooltip' data-placement='left' title='Copy Page' onclick='copy(" + i + ")'>\
+		    <span data-toggle='modal' data-target='#modal'><button class='btn btn-primary' data-toggle='tooltip' data-placement='left' title='Копіювати сторінку' onclick='copy(" + i + ")'>\
                     <i class='fa fa-copy'></i>\
                     </button></span>\
-                    <button class='btn btn-danger' data-toggle='tooltip' data-placement='left' title='Delete Page' onclick='deletePage(" + i + ")'>\
+                    <button class='btn btn-danger' data-toggle='tooltip' data-placement='left' title='Видалити сторінку' onclick='deletePage(" + i + ")'>\
                     <i class='fa fa-trash-o'></i>\
                     </button></div>" : ""
                     ])

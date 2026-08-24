@@ -41,7 +41,7 @@
         <div class="modal-content">
             <!-- New Template Modal -->
             <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close" onclick="dismiss()"><span
+                <button type="button" class="close" data-dismiss="modal" aria-label="Закрити" onclick="dismiss()"><span
                         aria-hidden="true">&times;</span></button>
                 <h4 class="modal-title" id="templateModalLabel">Новий шаблон листа</h4>
             </div>
@@ -59,7 +59,7 @@
                 </div>
                 <label class="control-label" for="envelope-sender">Відправник конверта: <i class="fa fa-question-circle" data-toggle="tooltip" data-placement="right" title="Цей відправник відображається більшістю поштових клієнтів. За замовчуванням використовується SMTP From із профілю відправлення."></i></label>
                 <div class="form-group">
-                    <input type="text" class="form-control" placeholder="First Last <test@example.com>" id="envelope-sender" />
+                    <input type="text" class="form-control" placeholder="Ім’я Прізвище &lt;test@example.com&gt;" id="envelope-sender" />
                 </div>
                 <label class="control-label" for="subject">Тема:</label>
                 <div class="form-group">
@@ -73,7 +73,7 @@
                 <!-- Tab panes -->
                 <div class="tab-content">
                     <div role="tabpanel" class="tab-pane active" id="text">
-                        <textarea rows="10" id="text_editor" class="gophish-editor form-control" placeholder="Plaintext"></textarea>
+                        <textarea rows="10" id="text_editor" class="gophish-editor form-control" placeholder="Звичайний текст"></textarea>
                     </div>
                     <div role="tabpanel" class="tab-pane" id="html">
                         <textarea id="html_editor"></textarea>
@@ -92,10 +92,10 @@
                     <thead>
                         <tr>
                             <th class="col-md-1 no-sort"></th>
-                            <th class="col-md-10">Name</th>
+                            <th class="col-md-10">Назва</th>
                             <th class="col-md-1 no-sort"></th>
-                            <th class="datatable_hidden no-sort">Content</th>
-                            <th class="datatable_hidden no-sort">Type</th>
+                            <th class="datatable_hidden no-sort">Вміст</th>
+                            <th class="datatable_hidden no-sort">Тип</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -116,18 +116,18 @@
         <div class="modal-content">
             <!-- New Email Modal -->
             <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Закрити"><span aria-hidden="true">&times;</span></button>
                 <h4 class="modal-title" id="importEmailModalLabel">Імпорт листа</h4>
             </div>
             <div class="modal-body">
                 <div class="row" id="modal.flashes"></div>
                 <label class="control-label" for="email">Вміст листа:</label>
                 <div class="form-group">
-                    <textarea rows="10" id="email_content" class="gophish-editor form-control" placeholder="Raw Email Source"></textarea>
+                    <textarea rows="10" id="email_content" class="gophish-editor form-control" placeholder="Необроблений текст листа"></textarea>
                 </div>
                 <div class="checkbox checkbox-primary">
                     <input id="convert_links_checkbox" type="checkbox" checked>
-                    <label for="convert_links_checkbox">Change Links to Point to Landing Page</label>
+                    <label for="convert_links_checkbox">Змінити посилання на сторінку переходу</label>
                 </div>
             </div>
             <div class="modal-footer">

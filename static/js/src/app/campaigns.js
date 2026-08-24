@@ -14,12 +14,12 @@ var campaign = {}
 // Launch attempts to POST to /campaigns/
 function launch() {
     Swal.fire({
-        title: "Are you sure?",
+        title: "Ви впевнені?",
         text: "Кампанію буде заплановано до запуску.",
         type: "question",
         animation: false,
         showCancelButton: true,
-        confirmButtonText: "Launch",
+        confirmButtonText: "Запустити",
         confirmButtonColor: "#428bca",
         reverseButtons: true,
         allowOutsideClick: false,
@@ -35,7 +35,7 @@ function launch() {
                 // Validate our fields
                 var send_by_date = $("#send_by_date").val()
                 if (send_by_date != "") {
-                    send_by_date = moment(send_by_date, "MMMM Do YYYY, h:mm a").utc().format()
+                    send_by_date = moment(send_by_date, "DD.MM.YYYY HH:mm").utc().format()
                 }
                 var scenarios = []
                 $("#scenarios").select2("data").forEach(function (scenario) {
@@ -50,9 +50,10 @@ function launch() {
                     name: $("#name").val(),
                     url: $("#url").val(),
                     scenarios: scenarios,
-                    launch_date: moment($("#launch_date").val(), "MMMM Do YYYY, h:mm a").utc().format(),
+                    launch_date: moment($("#launch_date").val(), "DD.MM.YYYY HH:mm").utc().format(),
                     send_by_date: send_by_date || null,
                     groups: groups,
+                    training_enabled: $("#training_enabled").prop("checked"),
                 }
                 // Submit the campaign
                 api.campaigns.post(campaign)
@@ -70,8 +71,8 @@ function launch() {
     }).then(function (result) {
         if (result.value){
             Swal.fire(
-                'Campaign Scheduled!',
-                'This campaign has been scheduled for launch!',
+                    'Кампанію заплановано!',
+                    'Кампанію заплановано до запуску.',
                 'success'
             );
         }
@@ -100,12 +101,12 @@ function sendTestEmail() {
         }
     }
     btnHtml = $("#sendTestModalSubmit").html()
-    $("#sendTestModalSubmit").html('<i class="fa fa-spinner fa-spin"></i> Sending')
+    $("#sendTestModalSubmit").html('<i class="fa fa-spinner fa-spin"></i> Надсилання')
     // Send the test email
     api.send_test_email(test_email_request)
         .success(function (data) {
             $("#sendTestEmailModal\\.flashes").empty().append("<div style=\"text-align:center\" class=\"alert alert-success\">\
-            <i class=\"fa fa-check-circle\"></i> Email Sent!</div>")
+	            <i class=\"fa fa-check-circle\"></i> Лист надіслано!</div>")
             $("#sendTestModalSubmit").html(btnHtml)
         })
         .error(function (data) {
@@ -121,12 +122,13 @@ function dismiss() {
     $("#scenarios").val("").change();
     $("#url").val("");
     $("#users").val("").change();
+    $("#training_enabled").prop("checked", false);
     $("#modal").modal('hide');
 }
 
 function deleteCampaign(idx) {
     Swal.fire({
-        title: "Are you sure?",
+        title: "Ви впевнені?",
         text: "Кампанію буде видалено. Цю дію неможливо скасувати!",
         type: "warning",
         animation: false,
@@ -149,8 +151,8 @@ function deleteCampaign(idx) {
     }).then(function (result) {
         if (result.value){
             Swal.fire(
-                'Campaign Deleted!',
-                'This campaign has been deleted!',
+                    'Кампанію видалено!',
+                    'Кампанію успішно видалено.',
                 'success'
             );
         }
@@ -215,6 +217,7 @@ function copy(idx) {
             })
             $("#scenarios").val(scenarioIds).trigger("change")
             $("#url").val(campaign.url)
+            $("#training_enabled").prop("checked", campaign.training_enabled === true)
         })
         .error(function (data) {
             $("#modal\\.flashes").empty().append("<div style=\"text-align:center\" class=\"alert alert-danger\">\
@@ -225,19 +228,23 @@ function copy(idx) {
 $(document).ready(function () {
     $("#launch_date").datetimepicker({
         "widgetPositioning": {
-            "vertical": "bottom"
+            // Place the calendar above the field when there is not enough
+            // room below it inside the campaign dialog.
+            "vertical": "auto",
+            "horizontal": "auto"
         },
         "showTodayButton": true,
         "defaultDate": moment(),
-        "format": "MMMM Do YYYY, h:mm a"
+        "format": "DD.MM.YYYY HH:mm"
     })
     $("#send_by_date").datetimepicker({
         "widgetPositioning": {
-            "vertical": "bottom"
+            "vertical": "auto",
+            "horizontal": "auto"
         },
         "showTodayButton": true,
         "useCurrent": false,
-        "format": "MMMM Do YYYY, h:mm a"
+        "format": "DD.MM.YYYY HH:mm"
     })
     // Setup multiple modals
     // Code based on http://miles-by-motorcycle.com/static/bootstrap-modal/index.html
@@ -305,28 +312,28 @@ $(document).ready(function () {
                     //section for tooltips on the status of a campaign to show some quick stats
                     var launchDate;
                     if (moment(campaign.launch_date).isAfter(moment())) {
-                        launchDate = "Scheduled to start: " + moment(campaign.launch_date).format('MMMM Do YYYY, h:mm:ss a')
-                        var quickStats = launchDate + "<br><br>" + "Number of recipients: " + campaign.stats.total
+                        launchDate = "Заплановано на: " + moment(campaign.launch_date).format('DD.MM.YYYY HH:mm:ss')
+                        var quickStats = launchDate + "<br><br>" + countLabelUk(campaign.stats.total, "отримувач", "отримувачі", "отримувачів")
                     } else {
-                        launchDate = "Launch Date: " + moment(campaign.launch_date).format('MMMM Do YYYY, h:mm:ss a')
-                        var quickStats = launchDate + "<br><br>" + "Number of recipients: " + campaign.stats.total + "<br><br>" + "Emails opened: " + campaign.stats.opened + "<br><br>" + "Emails clicked: " + campaign.stats.clicked + "<br><br>" + "Submitted Credentials: " + campaign.stats.submitted_data + "<br><br>" + "Errors : " + campaign.stats.error + "<br><br>" + "Reported : " + campaign.stats.email_reported
+                        launchDate = "Дата запуску: " + moment(campaign.launch_date).format('DD.MM.YYYY HH:mm:ss')
+                        var quickStats = launchDate + "<br><br>" + countLabelUk(campaign.stats.total, "отримувач", "отримувачі", "отримувачів") + "<br><br>" + countLabelUk(campaign.stats.opened, "відкритий лист", "відкриті листи", "відкритих листів") + "<br><br>" + countLabelUk(campaign.stats.clicked, "перехід", "переходи", "переходів") + "<br><br>" + countLabelUk(campaign.stats.submitted_data, "введення даних", "введення даних", "введень даних") + "<br><br>" + countLabelUk(campaign.stats.error, "помилка", "помилки", "помилок") + "<br><br>" + countLabelUk(campaign.stats.email_reported, "повідомлення", "повідомлення", "повідомлень")
                     }
 
-                    var actions = "<div class='pull-right'><a class='btn btn-primary' href='/campaigns/" + campaign.id + "' data-toggle='tooltip' data-placement='left' title='View Results'>\
+                    var actions = "<div class='pull-right'><a class='btn btn-primary' href='/campaigns/" + campaign.id + "' data-toggle='tooltip' data-placement='left' title='Переглянути результати'>\
                     <i class='fa fa-bar-chart'></i>\
                     </a>"
                     if (user.can_manage_campaigns) {
-                        actions += "<span data-toggle='modal' data-backdrop='static' data-target='#modal'><button class='btn btn-primary' data-toggle='tooltip' data-placement='left' title='Copy Campaign' onclick='copy(" + i + ")'>\
+                        actions += "<span data-toggle='modal' data-backdrop='static' data-target='#modal'><button class='btn btn-primary' data-toggle='tooltip' data-placement='left' title='Копіювати кампанію' onclick='copy(" + i + ")'>\
                     <i class='fa fa-copy'></i>\
                     </button></span>\
-                    <button class='btn btn-danger' onclick='deleteCampaign(" + i + ")' data-toggle='tooltip' data-placement='left' title='Delete Campaign'>\
+                    <button class='btn btn-danger' onclick='deleteCampaign(" + i + ")' data-toggle='tooltip' data-placement='left' title='Видалити кампанію'>\
                     <i class='fa fa-trash-o'></i>\
                     </button>"
                     }
                     actions += "</div>"
                     var row = [
                         escapeHtml(campaign.name),
-                        moment(campaign.created_date).format('MMMM Do YYYY, h:mm:ss a'),
+                        formatDateUkNumeric(campaign.created_date),
                         "<span class=\"label " + label + "\" data-toggle=\"tooltip\" data-placement=\"right\" data-html=\"true\" title=\"" + quickStats + "\">" + campaign.status + "</span>",
                         actions
                     ]

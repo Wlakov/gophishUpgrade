@@ -20,7 +20,7 @@ const formatDate = (value) => {
         return "Не вказано"
     }
     const date = new Date(value)
-    return isNaN(date.getTime()) ? "Не вказано" : date.toLocaleString()
+    return isNaN(date.getTime()) ? "Не вказано" : formatDateUk(date)
 }
 
 const campaignStats = (campaign) => {
@@ -41,6 +41,15 @@ const campaignStats = (campaign) => {
 }
 
 const percentage = (value, total) => total ? Math.round((value / total) * 100) + "%" : "—"
+
+const statusLabelUk = (status) => ({
+    "Completed": "Завершено", "In progress": "Виконується", "Emails Sent": "Листи надіслано",
+    "Queued": "У черзі", "Email Sent": "Лист надіслано", "Email Opened": "Лист відкрито",
+    "Clicked Link": "Перехід за посиланням", "Submitted Data": "Введено дані",
+    "Email Reported": "Про лист повідомлено", "Error": "Помилка",
+    "Error Sending Email": "Помилка надсилання листа", "Scheduled": "Заплановано",
+    "Retrying": "Повторна спроба", "Campaign Created": "Кампанію створено"
+}[status] || status || "Не вказано")
 
 const statusClass = (status) => {
     switch ((status || "").toLowerCase()) {
@@ -104,7 +113,7 @@ const campaignMaterialPanel = (kind, title, campaign) => campaignMaterialSelecto
 const groupList = (campaign) => {
     const groups = campaignItems(campaign.groups, group =>
         "<strong>" + escapeHtml(group.name) + "</strong> <span class='text-muted pull-right'>" +
-        ((group.targets || []).length) + " отримувачів</span>", "Для цієї кампанії групи не прив’язані.")
+        countLabelUk((group.targets || []).length, "отримувач", "отримувачі", "отримувачів") + "</span>", "Для цієї кампанії групи не прив’язані.")
     const legacyNote = campaign.groups_inferred
         ? "<div class='alert alert-info user-campaign-inline-alert'><i class='fa fa-info-circle'></i> Зв’язки з групами не збереглися під час створення кампанії. Нижче показано групи, визначені за отримувачами.</div>"
         : ""
@@ -123,14 +132,14 @@ const scenarioList = (campaign) => {
         const page = scenario.page || {}
         const smtp = scenario.smtp || {}
         return "<article class='user-campaign-scenario'>" +
-            "<div class='user-campaign-scenario-heading'><div><strong>" + escapeHtml(scenario.name) + "</strong><span>" + recipients.length + " призначених отримувачів</span></div>" +
+            "<div class='user-campaign-scenario-heading'><div><strong>" + escapeHtml(scenario.name) + "</strong><span>" + countLabelUk(recipients.length, "призначений отримувач", "призначені отримувачі", "призначених отримувачів") + "</span></div>" +
             "<span class='label label-" + (stats.submitted ? "danger" : "default") + "'>" + percentage(stats.clicked + stats.submitted, stats.total) + " ризикових дій</span></div>" +
             "<div class='row user-campaign-scenario-components'>" +
             "<div class='col-sm-4'><i class='fa fa-envelope'></i><small>Шаблон листа</small><strong>" + escapeHtml(template.name || "[Видалено]") + "</strong></div>" +
             "<div class='col-sm-4'><i class='fa fa-file-text-o'></i><small>Цільова сторінка</small><strong>" + escapeHtml(page.name || "[Видалено]") + "</strong></div>" +
             "<div class='col-sm-4'><i class='fa fa-paper-plane'></i><small>Профіль відправлення</small><strong>" + escapeHtml(smtp.name || "[Видалено]") + "</strong></div>" +
             "</div>" +
-            "<div class='user-campaign-scenario-stats'><span><b>" + stats.opened + "</b> відкрито</span><span><b>" + stats.clicked + "</b> переходів</span><span><b>" + stats.submitted + "</b> введено дані</span><span><b>" + stats.reported + "</b> повідомлень</span></div>" +
+            "<div class='user-campaign-scenario-stats'><span><b>" + countLabelUk(stats.opened, "лист відкрито", "листи відкрито", "листів відкрито") + "</b></span><span><b>" + countLabelUk(stats.clicked, "перехід", "переходи", "переходів") + "</b></span><span><b>" + countLabelUk(stats.submitted, "введення даних", "введення даних", "введень даних") + "</b></span><span><b>" + countLabelUk(stats.reported, "повідомлення", "повідомлення", "повідомлень") + "</b></span></div>" +
             "</article>"
     }).join("")
 }
@@ -143,6 +152,9 @@ const eventPresentation = (message) => {
     case "Submitted Data": return { icon: "fa-keyboard-o", modifier: "submitted" }
     case "Email Reported": return { icon: "fa-flag", modifier: "reported" }
     case "Error Sending Email": return { icon: "fa-exclamation-triangle", modifier: "error" }
+    case "Training Viewed": return { icon: "fa-book", modifier: "opened" }
+    case "Training Quiz Passed": return { icon: "fa-check", modifier: "reported" }
+    case "Training Quiz Failed": return { icon: "fa-times", modifier: "error" }
     default: return { icon: "fa-circle", modifier: "default" }
     }
 }
@@ -167,7 +179,7 @@ const eventTimeline = (events) => {
     return "<div class='user-campaign-event-timeline'>" + events.slice().sort((a, b) => new Date(b.time) - new Date(a.time)).map(event => {
         const presentation = eventPresentation(event.message)
         return "<article class='user-campaign-event " + presentation.modifier + "'><div class='user-campaign-event-icon'><i class='fa " + presentation.icon + "'></i></div>" +
-            "<div class='user-campaign-event-content'><div><strong>" + escapeHtml(event.message) + "</strong><time>" + formatDate(event.time) + "</time></div>" +
+            "<div class='user-campaign-event-content'><div><strong>" + escapeHtml(statusLabelUk(event.message)) + "</strong><time>" + formatDate(event.time) + "</time></div>" +
             (event.email ? "<span class='user-campaign-event-email'><i class='fa fa-user'></i> " + escapeHtml(event.email) + "</span>" : "") + eventDetailsSummary(event) + "</div></article>"
     }).join("") + "</div>"
 }
@@ -176,7 +188,7 @@ const recipientList = (results) => {
     if (!results || results.length === 0) return "<p class='text-muted'>Отримувачів не зафіксовано.</p>"
     return "<div class='table-responsive'><table class='table table-condensed user-campaign-results-table'><thead><tr><th>Отримувач</th><th>Стан</th><th>Остання активність</th></tr></thead><tbody>" +
         results.map(result => "<tr><td>" + escapeHtml(result.email) + "</td><td><span class='label label-" + resultStatusClass(result) + "'>" +
-            escapeHtml(result.reported ? "Повідомлено" : result.status) + "</span></td><td>" + formatDate(result.modified_date) + "</td></tr>").join("") + "</tbody></table></div>"
+            escapeHtml(result.reported ? "Повідомлено" : statusLabelUk(result.status)) + "</span></td><td>" + formatDate(result.modified_date) + "</td></tr>").join("") + "</tbody></table></div>"
 }
 
 const showMaterialPreview = (kind, index) => {
@@ -204,12 +216,12 @@ const campaignDetails = (campaign) => {
     const smtp = campaign.smtp || {}
     const stats = campaignStats(campaign)
     return "<div class='row user-campaign-details-summary'>" +
-        metric("Recipients", stats.total, "", "") +
-        metric("Opened", stats.opened, percentage(stats.opened, stats.total), "") +
-        metric("Clicked", stats.clicked, percentage(stats.clicked, stats.total), "") +
-        metric("Submitted", stats.submitted, percentage(stats.submitted, stats.total), "danger") +
+        metric("Отримувачі", stats.total, "", "") +
+        metric("Відкрито", stats.opened, percentage(stats.opened, stats.total), "") +
+        metric("Переходи", stats.clicked, percentage(stats.clicked, stats.total), "") +
+        metric("Введено дані", stats.submitted, percentage(stats.submitted, stats.total), "danger") +
         "</div>" +
-        "<dl class='dl-horizontal user-campaign-description'><dt>Status</dt><dd><span class='label label-" + statusClass(campaign.status) + "'>" + escapeHtml(campaign.status || "Unknown") + "</span></dd>" +
+        "<dl class='dl-horizontal user-campaign-description'><dt>Стан</dt><dd><span class='label label-" + statusClass(campaign.status) + "'>" + escapeHtml(statusLabelUk(campaign.status)) + "</span></dd>" +
         "<dt>Створено</dt><dd>" + formatDate(campaign.created_date) + "</dd><dt>Дата запуску</dt><dd>" + formatDate(campaign.launch_date) +
         "</dd><dt>URL кампанії</dt><dd class='text-break'>" + escapeHtml(campaign.url || "Не вказано") + "</dd></dl>" +
         campaignResource("Групи", groupList(campaign)) +
@@ -237,13 +249,13 @@ const campaignCard = (workspace, campaign, index) => {
         "<p class='text-muted user-campaign-card-meta'><i class='fa fa-user'></i> " + escapeHtml(workspace.user.username) +
         " <span class='user-campaign-separator'>•</span> Створено " + formatDate(campaign.created_date) + "</p></div>" +
         "<div class='col-sm-4 text-right'><span class='label label-" + statusClass(campaign.status) + " user-campaign-status'>" +
-        escapeHtml(campaign.status || "Unknown") + "</span></div></div>" +
+        escapeHtml(statusLabelUk(campaign.status)) + "</span></div></div>" +
         "<div class='row user-campaign-card-metrics'>" +
-        metric("Recipients", stats.total, "", "") + metric("Opened", percentage(stats.opened, stats.total), stats.opened + " people", "") +
-        metric("Reported", percentage(stats.reported, stats.total), stats.reported + " people", "success") +
-        metric("Ризикові дії", percentage(stats.clicked + stats.submitted, stats.total), activity + " взаємодій", "danger") +
+        metric("Отримувачі", stats.total, "", "") + metric("Відкрито", percentage(stats.opened, stats.total), countLabelUk(stats.opened, "особа", "особи", "осіб"), "") +
+        metric("Повідомлено", percentage(stats.reported, stats.total), countLabelUk(stats.reported, "особа", "особи", "осіб"), "success") +
+        metric("Ризикові дії", percentage(stats.clicked + stats.submitted, stats.total), countLabelUk(activity, "взаємодія", "взаємодії", "взаємодій"), "danger") +
         "</div>" +
-        "<div class='user-campaign-card-footer'><span class='text-muted'><i class='fa fa-users'></i> " + (campaign.groups || []).length + " груп &nbsp; <i class='fa fa-sitemap'></i> " + (campaign.scenarios || []).length + " сценаріїв</span>" +
+        "<div class='user-campaign-card-footer'><span class='text-muted'><i class='fa fa-users'></i> " + countLabelUk((campaign.groups || []).length, "група", "групи", "груп") + " &nbsp; <i class='fa fa-sitemap'></i> " + countLabelUk((campaign.scenarios || []).length, "сценарій", "сценарії", "сценаріїв") + "</span>" +
         "<button class='btn btn-primary btn-sm pull-right show-user-campaign-details' data-campaign-index='" + index + "'><i class='fa fa-eye'></i> Переглянути деталі</button></div>" +
         "</div></article>"
 }
@@ -288,8 +300,8 @@ const renderCampaigns = () => {
         if (!cards) return ""
         return "<section class='user-campaign-workspace'><div class='user-campaign-workspace-heading'><div class='user-campaign-avatar'>" +
             escapeHtml(workspace.user.username.charAt(0).toUpperCase()) + "</div><div><h2>" + escapeHtml(workspace.user.username) +
-            "</h2><span>" + escapeHtml((workspace.user.role || {}).name || "User") + "</span></div><span class='badge pull-right'>" +
-            (workspace.campaigns || []).length + " campaign(s)</span></div>" + cards + "</section>"
+            "</h2><span>" + escapeHtml((workspace.user.role || {}).name || "Користувач") + "</span></div><span class='badge pull-right'>" +
+            countLabelUk((workspace.campaigns || []).length, "кампанія", "кампанії", "кампаній") + "</span></div>" + cards + "</section>"
     }).join("")
     $("#userCampaignWorkspaces").html(content)
     $("#userCampaignFilterCount").text(displayedCampaigns.length)
@@ -299,7 +311,7 @@ const renderCampaigns = () => {
 const fillFilters = () => {
     const statuses = {}
     userCampaignWorkspaces.forEach(workspace => (workspace.campaigns || []).forEach(campaign => { if (campaign.status) statuses[campaign.status] = true }))
-    Object.keys(statuses).sort().forEach(status => $("#userCampaignStatus").append($("<option>").val(status).text(status)))
+    Object.keys(statuses).sort().forEach(status => $("#userCampaignStatus").append($("<option>").val(status).text(statusLabelUk(status))))
     userCampaignWorkspaces.slice().sort((a, b) => a.user.username.localeCompare(b.user.username)).forEach(workspace =>
         $("#userCampaignOwner").append($("<option>").val(workspace.user.id).text(workspace.user.username)))
 }

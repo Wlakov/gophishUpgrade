@@ -81,7 +81,7 @@ function dismiss() {
 
 var deleteTemplate = function (idx) {
     Swal.fire({
-        title: "Are you sure?",
+        title: "Ви впевнені?",
         text: "Шаблон буде видалено. Цю дію неможливо скасувати!",
         type: "warning",
         animation: false,
@@ -328,14 +328,14 @@ function load() {
                 $.each(templates, function (i, template) {
                     templateRows.push([
                         escapeHtml(template.name),
-                        moment(template.modified_date).format('MMMM Do YYYY, h:mm:ss a'),
-                        user.can_modify_objects ? "<div class='pull-right'><span data-toggle='modal' data-backdrop='static' data-target='#modal'><button class='btn btn-primary' data-toggle='tooltip' data-placement='left' title='Edit Template' onclick='edit(" + i + ")'>\
+                        formatDateUkNumeric(template.modified_date),
+                        user.can_modify_objects ? "<div class='pull-right'><span data-toggle='modal' data-backdrop='static' data-target='#modal'><button class='btn btn-primary' data-toggle='tooltip' data-placement='left' title='Редагувати шаблон' onclick='edit(" + i + ")'>\
                     <i class='fa fa-pencil'></i>\
                     </button></span>\
-		    <span data-toggle='modal' data-target='#modal'><button class='btn btn-primary' data-toggle='tooltip' data-placement='left' title='Copy Template' onclick='copy(" + i + ")'>\
+		    <span data-toggle='modal' data-target='#modal'><button class='btn btn-primary' data-toggle='tooltip' data-placement='left' title='Копіювати шаблон' onclick='copy(" + i + ")'>\
                     <i class='fa fa-copy'></i>\
                     </button></span>\
-                    <button class='btn btn-danger' data-toggle='tooltip' data-placement='left' title='Delete Template' onclick='deleteTemplate(" + i + ")'>\
+                    <button class='btn btn-danger' data-toggle='tooltip' data-placement='left' title='Видалити шаблон' onclick='deleteTemplate(" + i + ")'>\
                     <i class='fa fa-trash-o'></i>\
                     </button></div>" : ""
                     ])

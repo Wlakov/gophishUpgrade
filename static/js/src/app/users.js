@@ -6,7 +6,7 @@ const populateManagers = (selectedManagerId) => {
     const selected = selectedManagerId ? String(selectedManagerId) : ""
     const managerSelect = $("#manager_id")
     managerSelect.empty()
-    managerSelect.append("<option value=''>Select a campaign manager</option>")
+    managerSelect.append("<option value=''>Оберіть керівника кампаній</option>")
     $.each(users, (i, candidate) => {
         if (candidate.role.slug === "campaign_manager") {
             const option = $("<option></option>")
@@ -135,7 +135,7 @@ const deleteUser = (id) => {
         return
     }
     Swal.fire({
-        title: "Are you sure?",
+        title: "Ви впевнені?",
         text: "Буде видалено обліковий запис " + escapeHtml(user.username) + " і всі створені ним об’єкти.\n\nЦю дію неможливо скасувати!",
         type: "warning",
         animation: false,
@@ -178,8 +178,8 @@ const impersonate = (id) => {
         return
     }
     Swal.fire({
-        title: "Are you sure?",
-        html: "You will be logged out of your account and logged in as <strong>" + escapeHtml(user.username) + "</strong>",
+        title: "Ви впевнені?",
+        html: "Ви вийдете зі свого облікового запису та ввійдете як <strong>" + escapeHtml(user.username) + "</strong>",
         type: "warning",
         animation: false,
         showCancelButton: true,
@@ -242,7 +242,7 @@ const load = () => {
             $.each(users, (i, user) => {
                 lastlogin = ""
                 if (user.last_login != "0001-01-01T00:00:00Z") {
-                    lastlogin = moment(user.last_login).format('MMMM Do YYYY, h:mm:ss a')
+                    lastlogin = formatDateUkNumeric(user.last_login)
                 }
                 let managerName = "—"
                 if (user.manager_id) {

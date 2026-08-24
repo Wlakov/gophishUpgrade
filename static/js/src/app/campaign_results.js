@@ -94,8 +94,29 @@ var statuses = {
     "Campaign Created": {
         label: "label-success",
         icon: "fa-rocket"
+    },
+    "Training Viewed": {
+        color: "#8e44ad", label: "label-info", icon: "fa-book", point: "ct-point-opened"
+    },
+    "Training Quiz Passed": {
+        color: "#27ae60", label: "label-success", icon: "fa-check", point: "ct-point-reported"
+    },
+    "Training Quiz Failed": {
+        color: "#c0392b", label: "label-danger", icon: "fa-times", point: "ct-point-error"
     }
 }
+
+var statusLabelsUk = {
+    "Email Sent": "Лист надіслано", "Emails Sent": "Листи надіслано", "In progress": "Виконується",
+    "Queued": "У черзі", "Completed": "Завершено", "Email Opened": "Лист відкрито",
+    "Clicked Link": "Перехід за посиланням", "Success": "Успішно", "Email Reported": "Про лист повідомлено",
+    "Error": "Помилка", "Error Sending Email": "Помилка надсилання листа", "Submitted Data": "Введено дані",
+    "Unknown": "Не вказано", "Sending": "Надсилання", "Retrying": "Повторна спроба",
+    "Scheduled": "Заплановано", "Campaign Created": "Кампанію створено",
+    "Training Viewed": "Навчання переглянуто", "Training Quiz Passed": "Навчальний тест пройдено",
+    "Training Quiz Failed": "Навчальний тест не пройдено"
+}
+function translateStatusUk(status) { return statusLabelsUk[status] || status || "Не вказано" }
 
 var statusMapping = {
     "Email Sent": "sent",
@@ -150,8 +171,8 @@ function deleteCampaign() {
     }).then(function (result) {
         if(result.value){
             Swal.fire(
-                'Campaign Deleted!',
-                'This campaign has been deleted!',
+                'Кампанію видалено!',
+                'Кампанію успішно видалено.',
                 'success'
             );
         }
@@ -376,9 +397,9 @@ function renderTimeline(data) {
         "send_date": data[8]
     }
     results = '<div class="timeline col-sm-12 well well-lg">' +
-        '<h6>Timeline for ' + escapeHtml(record.first_name) + ' ' + escapeHtml(record.last_name) +
-        '</h6><span class="subtitle">Email: ' + escapeHtml(record.email) +
-        '<br>Result ID: ' + escapeHtml(record.id) + '</span>' +
+        '<h6>Хронологія подій: ' + escapeHtml(record.first_name) + ' ' + escapeHtml(record.last_name) +
+        '</h6><span class="subtitle">Електронна пошта: ' + escapeHtml(record.email) +
+        '<br>Ідентифікатор результату: ' + escapeHtml(record.id) + '</span>' +
         '<div class="timeline-graph col-sm-6">'
     $.each(campaign.timeline, function (i, event) {
         if (!event.email || event.email == record.email) {
@@ -388,8 +409,8 @@ function renderTimeline(data) {
             results +=
                 '    <div class="timeline-icon ' + statuses[event.message].label + '">' +
                 '    <i class="fa ' + statuses[event.message].icon + '"></i></div>' +
-                '    <div class="timeline-message">' + escapeHtml(event.message) +
-                '    <span class="timeline-date">' + moment.utc(event.time).local().format('MMMM Do YYYY h:mm:ss a') + '</span>'
+                '    <div class="timeline-message">' + escapeHtml(translateStatusUk(event.message)) +
+                '    <span class="timeline-date">' + formatDateUk(moment.utc(event.time).local()) + '</span>'
             if (event.details) {
                 details = JSON.parse(event.details)
                 if (event.message == "Clicked Link" || event.message == "Submitted Data") {
@@ -406,7 +427,7 @@ function renderTimeline(data) {
                 if (details.payload) {
                     results += '<div class="timeline-event-results">'
                     results += '    <table class="table table-condensed table-bordered table-striped">'
-                    results += '        <thead><tr><th>Parameter</th><th>Value(s)</tr></thead><tbody>'
+                    results += '        <thead><tr><th>Параметр</th><th>Значення</tr></thead><tbody>'
                     $.each(Object.keys(details.payload), function (i, param) {
                         if (param == "rid") {
                             return true;
@@ -422,7 +443,7 @@ function renderTimeline(data) {
                 if (details.error) {
                     results += '<div class="timeline-event-details"><i class="fa fa-caret-right"></i> Переглянути деталі</div>'
                     results += '<div class="timeline-event-results">'
-                    results += '<span class="label label-default">Error</span> ' + details.error
+                    results += '<span class="label label-default">Помилка</span> ' + escapeHtml(details.error)
                     results += '</div>'
                 }
             }
@@ -477,8 +498,8 @@ var renderTimelineChart = function (chartopts) {
         },
         tooltip: {
             formatter: function () {
-                return Highcharts.dateFormat('%A, %b %d %l:%M:%S %P', new Date(this.x)) +
-                    '<br>Event: ' + this.point.message + '<br>Email: <b>' + this.point.email + '</b>'
+                return Highcharts.dateFormat('%d.%m.%Y %H:%M:%S', new Date(this.x)) +
+                    '<br>Подія: ' + translateStatusUk(this.point.message) + '<br>Електронна пошта: <b>' + this.point.email + '</b>'
             }
         },
         legend: {
@@ -613,11 +634,11 @@ var updateMap = function (results) {
  */
 function createStatusLabel(status, send_date) {
     var label = statuses[status].label || "label-default";
-    var statusColumn = "<span class=\"label " + label + "\">" + status + "</span>"
+    var statusColumn = "<span class=\"label " + label + "\">" + translateStatusUk(status) + "</span>"
     // Add the tooltip if the email is scheduled to be sent
     if (status == "Scheduled" || status == "Retrying") {
         var sendDateMessage = "Заплановано на " + send_date
-        statusColumn = "<span class=\"label " + label + "\" data-toggle=\"tooltip\" data-placement=\"top\" data-html=\"true\" title=\"" + sendDateMessage + "\">" + status + "</span>"
+        statusColumn = "<span class=\"label " + label + "\" data-toggle=\"tooltip\" data-placement=\"top\" data-html=\"true\" title=\"" + sendDateMessage + "\">" + translateStatusUk(status) + "</span>"
     }
     return statusColumn
 }
@@ -630,7 +651,25 @@ function percentage(value, total) {
 }
 
 function statCell(value, rate) {
-    return "<td class='text-right'>" + value + " <span class='text-muted'>" + rate + "</span></td>"
+    var numericRate = parseInt(rate, 10)
+    var rateClass = "is-muted"
+    if (!isNaN(numericRate)) {
+        if (numericRate >= 70) {
+            rateClass = "is-good"
+        } else if (numericRate > 0) {
+            rateClass = "is-warning"
+        }
+    }
+    return "<td class='scenario-result-metric text-right'><div class='scenario-metric-value'>" + value + "</div><div class='scenario-metric-rate " + rateClass + "'>" + rate + "</div></td>"
+}
+
+function totalCell(value) {
+    return "<td class='scenario-result-metric scenario-result-total text-right'><div class='scenario-metric-value'>" + value + "</div><div class='scenario-metric-rate'>усього</div></td>"
+}
+
+function errorCell(value) {
+    var errorClass = value > 0 ? "is-danger" : "is-muted"
+    return "<td class='scenario-result-metric text-right'><div class='scenario-metric-value " + errorClass + "'>" + value + "</div><div class='scenario-metric-rate'>помилок</div></td>"
 }
 
 function renderScenarioStats(scenarioStats) {
@@ -643,16 +682,23 @@ function renderScenarioStats(scenarioStats) {
     $.each(scenarioStats, function (_, scenarioStat) {
         var scenario = scenarioStat.scenario
         var stats = scenarioStat.stats
-        var description = escapeHtml(scenario.template.name) + " / " + escapeHtml(scenario.page.name) + " / " + escapeHtml(scenario.smtp.name)
+        var components =
+            "<div class='scenario-result-components'>" +
+            "<span><i class='fa fa-envelope-o'></i>Лист: <b>" + escapeHtml(scenario.template.name) + "</b></span>" +
+            "<span><i class='fa fa-window-maximize'></i>Сторінка: <b>" + escapeHtml(scenario.page.name) + "</b></span>" +
+            "<span><i class='fa fa-paper-plane-o'></i>Профіль: <b>" + escapeHtml(scenario.smtp.name) + "</b></span>" +
+            "</div>"
         var row = "<tr>" +
-            "<td><strong>" + escapeHtml(scenario.name) + "</strong><br><small class='text-muted'>" + description + "</small></td>" +
-            "<td class='text-right'>" + stats.total + "</td>" +
+            "<td class='scenario-result-name'><div class='scenario-result-title'><i class='fa fa-shield'></i><strong>" + escapeHtml(scenario.name) + "</strong></div>" + components + "</td>" +
+            totalCell(stats.total) +
             statCell(stats.sent, percentage(stats.sent, stats.total)) +
             statCell(stats.opened, percentage(stats.opened, stats.sent)) +
             statCell(stats.clicked, percentage(stats.clicked, stats.opened)) +
             statCell(stats.submitted_data, percentage(stats.submitted_data, stats.clicked)) +
             statCell(stats.email_reported, percentage(stats.email_reported, stats.sent)) +
-            "<td class='text-right'>" + stats.error + "</td>" +
+            errorCell(stats.error) +
+            statCell(stats.training_completed, percentage(stats.training_completed, stats.training_viewed)) +
+            statCell(stats.training_passed, percentage(stats.training_passed, stats.training_completed)) +
             "</tr>"
         tableBody.append(row)
     })
@@ -735,7 +781,7 @@ function poll() {
                 var rid = rowData[0]
                 $.each(campaign.results, function (j, result) {
                     if (result.id == rid) {
-                        rowData[8] = moment(result.send_date).format('MMMM Do YYYY, h:mm:ss a')
+                        rowData[8] = formatDateUkNumeric(result.send_date)
                         rowData[7] = result.reported
                         rowData[6] = result.status
                         resultsTable.row(i).data(rowData)
@@ -842,7 +888,7 @@ function load() {
                         escapeHtml(result.position) || "",
                         result.status,
                         result.reported,
-                        moment(result.send_date).format('MMMM Do YYYY, h:mm:ss a')
+                        formatDateUkNumeric(result.send_date)
                     ])
                     email_series_data[result.status]++;
                     if (result.reported) {
@@ -940,7 +986,7 @@ function load() {
         })
         .error(function () {
             $("#loading").hide()
-            errorFlash(" Campaign not found!")
+            errorFlash("Кампанію не знайдено!")
         })
 }
 
@@ -959,12 +1005,12 @@ function refresh() {
 
 function report_mail(rid, cid) {
     Swal.fire({
-        title: "Are you sure?",
+        title: "Ви впевнені?",
         text: "Для цього результату буде встановлено позначку повідомлення (RID: " + rid + ")",
         type: "question",
         animation: false,
         showCancelButton: true,
-        confirmButtonText: "Continue",
+        confirmButtonText: "Продовжити",
         confirmButtonColor: "#428bca",
         reverseButtons: true,
         allowOutsideClick: false,
@@ -985,13 +1031,13 @@ function report_mail(rid, cid) {
                 .catch(error => {
                     let errorMessage = error.message;
                     if (error.message === "Failed to fetch") {
-                        errorMessage = "This might be due to Mixed Content issues or network problems.";
+                        errorMessage = "Можлива причина — проблема змішаного вмісту або мережеве з’єднання.";
                     }
                     Swal.fire({
-                        title: 'Error',
+                        title: 'Помилка',
                         text: errorMessage,
                         type: 'error',
-                        confirmButtonText: 'Close'
+                        confirmButtonText: 'Закрити'
                     });
                 });
             }));

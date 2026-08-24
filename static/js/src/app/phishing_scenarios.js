@@ -63,7 +63,7 @@ function edit(idx) {
 
 function deleteScenario(idx) {
     Swal.fire({
-        title: "Are you sure?",
+        title: "Ви впевнені?",
         text: "Сценарій буде видалено. Цю дію неможливо скасувати!",
         type: "warning",
         showCancelButton: true,
@@ -98,7 +98,7 @@ function load() {
                 escapeHtml(scenario.template.name),
                 escapeHtml(scenario.page.name),
                 escapeHtml(scenario.smtp.name),
-                moment(scenario.modified_date).format("MMMM Do YYYY, h:mm:ss a"),
+                formatDateUkNumeric(scenario.modified_date),
                 user.can_modify_objects ? "<div class='pull-right'><span data-toggle='modal' data-backdrop='static' data-target='#modal'><button class='btn btn-primary' onclick='edit(" + idx + ")'><i class='fa fa-pencil'></i></button></span> <button class='btn btn-danger' onclick='deleteScenario(" + idx + ")'><i class='fa fa-trash-o'></i></button></div>" : ""
             ]]
         })

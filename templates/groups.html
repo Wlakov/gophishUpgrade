@@ -42,7 +42,7 @@
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Закрити">
                     <span aria-hidden="true">&times;</span>
                 </button>
                 <h4 class="modal-title" id="groupModalLabel">Нова група</h4>
@@ -64,21 +64,21 @@
                         <i class="fa fa-file-excel-o"></i> Завантажити шаблон CSV</span>
                 </div>
                 <div class="row">
-                    <form id="targetForm">
-                        <div class="col-sm-2">
+                    <form id="targetForm" class="modal-form-grid">
+                        <div class="target-first-name">
                             <input type="text" class="form-control" placeholder="Ім’я" id="firstName">
                         </div>
-                        <div class="col-sm-2">
+                        <div class="target-last-name">
                             <input type="text" class="form-control" placeholder="Прізвище" id="lastName">
                         </div>
-                        <div class="col-sm-3">
+                        <div class="target-email">
                             <input type="email" class="form-control" placeholder="Електронна пошта" id="email" required>
                         </div>
-                        <div class="col-sm-3">
+                        <div class="target-position">
                             <input type="text" class="form-control" placeholder="Посада" id="position">
                         </div>
-                        <div class="col-sm-1">
-                            <button type="submit" class="btn btn-danger btn-lg">
+                        <div class="target-action">
+                            <button type="submit" class="btn btn-danger">
                                 <i class="fa fa-plus"></i> Додати</button>
                         </div>
                     </form>

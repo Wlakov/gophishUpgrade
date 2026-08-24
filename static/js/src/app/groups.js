@@ -22,7 +22,7 @@ function save(id) {
         group.id = id
         api.groupId.put(group)
             .success(function (data) {
-                successFlash("Group updated successfully!")
+                successFlash("Групу успішно оновлено!")
                 load()
                 dismiss()
                 $("#modal").modal('hide')
@@ -35,7 +35,7 @@ function save(id) {
         // to /groups
         api.groups.post(group)
             .success(function (data) {
-                successFlash("Group added successfully!")
+                successFlash("Групу успішно додано!")
                 load()
                 dismiss()
                 $("#modal").modal('hide')
@@ -151,12 +151,12 @@ var deleteGroup = function (id) {
         return
     }
     Swal.fire({
-        title: "Are you sure?",
+        title: "Ви впевнені?",
         text: "This will delete the group. This can't be undone!",
         type: "warning",
         animation: false,
         showCancelButton: true,
-        confirmButtonText: "Delete " + escapeHtml(group.name),
+        confirmButtonText: "Видалити " + escapeHtml(group.name),
         confirmButtonColor: "#428bca",
         reverseButtons: true,
         allowOutsideClick: false,
@@ -240,7 +240,7 @@ function load() {
                     groupRows.push([
                         escapeHtml(group.name),
                         escapeHtml(group.num_targets),
-                        moment(group.modified_date).format('MMMM Do YYYY, h:mm:ss a'),
+                        formatDateUkNumeric(group.modified_date),
                         user.can_modify_objects ? "<div class='pull-right'><button class='btn btn-primary' data-toggle='modal' data-backdrop='static' data-target='#modal' onclick='edit(" + group.id + ")'>\
                     <i class='fa fa-pencil'></i>\
                     </button>\

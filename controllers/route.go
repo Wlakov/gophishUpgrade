@@ -240,56 +240,56 @@ func newTemplateParams(r *http.Request) templateParams {
 // Base handles the default path and template execution
 func (as *AdminServer) Base(w http.ResponseWriter, r *http.Request) {
 	params := newTemplateParams(r)
-	params.Title = "Dashboard"
+	params.Title = "Огляд"
 	getTemplate(w, "dashboard").ExecuteTemplate(w, "base", params)
 }
 
 // Campaigns handles the default path and template execution
 func (as *AdminServer) Campaigns(w http.ResponseWriter, r *http.Request) {
 	params := newTemplateParams(r)
-	params.Title = "Campaigns"
+	params.Title = "Кампанії"
 	getTemplate(w, "campaigns").ExecuteTemplate(w, "base", params)
 }
 
 // CampaignID handles the default path and template execution
 func (as *AdminServer) CampaignID(w http.ResponseWriter, r *http.Request) {
 	params := newTemplateParams(r)
-	params.Title = "Campaign Results"
+	params.Title = "Результати кампанії"
 	getTemplate(w, "campaign_results").ExecuteTemplate(w, "base", params)
 }
 
 // Templates handles the default path and template execution
 func (as *AdminServer) Templates(w http.ResponseWriter, r *http.Request) {
 	params := newTemplateParams(r)
-	params.Title = "Email Templates"
+	params.Title = "Шаблони листів"
 	getTemplate(w, "templates").ExecuteTemplate(w, "base", params)
 }
 
 // Groups handles the default path and template execution
 func (as *AdminServer) Groups(w http.ResponseWriter, r *http.Request) {
 	params := newTemplateParams(r)
-	params.Title = "Users & Groups"
+	params.Title = "Користувачі та групи"
 	getTemplate(w, "groups").ExecuteTemplate(w, "base", params)
 }
 
 // LandingPages handles the default path and template execution
 func (as *AdminServer) LandingPages(w http.ResponseWriter, r *http.Request) {
 	params := newTemplateParams(r)
-	params.Title = "Landing Pages"
+	params.Title = "Сторінки переходу"
 	getTemplate(w, "landing_pages").ExecuteTemplate(w, "base", params)
 }
 
 // SendingProfiles handles the default path and template execution
 func (as *AdminServer) SendingProfiles(w http.ResponseWriter, r *http.Request) {
 	params := newTemplateParams(r)
-	params.Title = "Sending Profiles"
+	params.Title = "Профілі відправлення"
 	getTemplate(w, "sending_profiles").ExecuteTemplate(w, "base", params)
 }
 
 // PhishingScenarios renders the reusable phishing scenario management page.
 func (as *AdminServer) PhishingScenarios(w http.ResponseWriter, r *http.Request) {
 	params := newTemplateParams(r)
-	params.Title = "Phishing Scenarios"
+	params.Title = "Фішингові сценарії"
 	getTemplate(w, "phishing_scenarios").ExecuteTemplate(w, "base", params)
 }
 
@@ -298,7 +298,7 @@ func (as *AdminServer) Settings(w http.ResponseWriter, r *http.Request) {
 	switch {
 	case r.Method == "GET":
 		params := newTemplateParams(r)
-		params.Title = "Settings"
+		params.Title = "Налаштування"
 		session := ctx.Get(r, "session").(*sessions.Session)
 		session.Save(r, w)
 		getTemplate(w, "settings").ExecuteTemplate(w, "base", params)
@@ -309,7 +309,7 @@ func (as *AdminServer) Settings(w http.ResponseWriter, r *http.Request) {
 		confirmPassword := r.FormValue("confirm_new_password")
 		// Check the current password
 		err := auth.ValidatePassword(currentPw, u.Hash)
-		msg := models.Response{Success: true, Message: "Settings Updated Successfully"}
+		msg := models.Response{Success: true, Message: "Налаштування успішно оновлено"}
 		if err != nil {
 			msg.Message = err.Error()
 			msg.Success = false
@@ -338,7 +338,7 @@ func (as *AdminServer) Settings(w http.ResponseWriter, r *http.Request) {
 // and management of user accounts within Gophish.
 func (as *AdminServer) UserManagement(w http.ResponseWriter, r *http.Request) {
 	params := newTemplateParams(r)
-	params.Title = "User Management"
+	params.Title = "Керування користувачами"
 	getTemplate(w, "users").ExecuteTemplate(w, "base", params)
 }
 
@@ -346,7 +346,7 @@ func (as *AdminServer) UserManagement(w http.ResponseWriter, r *http.Request) {
 // user's campaigns and the materials used in those campaigns.
 func (as *AdminServer) UserCampaigns(w http.ResponseWriter, r *http.Request) {
 	params := newTemplateParams(r)
-	params.Title = "Users Campaigns"
+	params.Title = "Кампанії користувачів"
 	getTemplate(w, "user_campaigns").ExecuteTemplate(w, "base", params)
 }
 
@@ -354,7 +354,7 @@ func (as *AdminServer) UserCampaigns(w http.ResponseWriter, r *http.Request) {
 // campaign manager's department and the members' owned resources.
 func (as *AdminServer) DepartmentWorkspace(w http.ResponseWriter, r *http.Request) {
 	params := newTemplateParams(r)
-	params.Title = "Department Workspace"
+	params.Title = "Робочий простір підрозділу"
 	getTemplate(w, "department").ExecuteTemplate(w, "base", params)
 }
 
@@ -394,7 +394,7 @@ func (as *AdminServer) handleInvalidLogin(w http.ResponseWriter, r *http.Request
 // Webhooks is an admin-only handler that handles webhooks
 func (as *AdminServer) Webhooks(w http.ResponseWriter, r *http.Request) {
 	params := newTemplateParams(r)
-	params.Title = "Webhooks"
+	params.Title = "Вебхуки"
 	getTemplate(w, "webhooks").ExecuteTemplate(w, "base", params)
 }
 
@@ -499,7 +499,7 @@ func (as *AdminServer) ResetPassword(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	params := newTemplateParams(r)
-	params.Title = "Reset Password"
+	params.Title = "Скидання пароля"
 	switch {
 	case r.Method == http.MethodGet:
 		params.Flashes = session.Flashes()
